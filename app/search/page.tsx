@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { MobileHeader } from '@/components/mobile-header';
@@ -8,21 +10,6 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
-import { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: 'Rechercher | GRANDSON CLOTHES',
-  description: 'Recherchez nos produits streetwear authentiques. Filtrez par catégorie, prix et plus.',
-  openGraph: {
-    title: 'Rechercher | GRANDSON CLOTHES',
-    description: 'Recherchez nos produits streetwear authentiques.',
-    type: 'website',
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
-}
 
 interface Product {
   id: number;
@@ -33,8 +20,6 @@ interface Product {
   category: string;
   stock: number;
 }
-
-'use client';
 
 function SearchContent() {
   const searchParams = useSearchParams();
@@ -193,10 +178,12 @@ function SearchContent() {
   );
 }
 
-export default function SearchPage() {
+function SearchPage() {
   return (
     <Suspense fallback={<div>Chargement...</div>}>
       <SearchContent />
     </Suspense>
   );
 }
+
+export default SearchPage;
