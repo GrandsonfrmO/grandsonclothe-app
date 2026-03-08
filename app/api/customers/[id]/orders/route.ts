@@ -1,14 +1,15 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { db } from '@/lib/db';
 import { orders } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 
 export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const customerId = parseInt(params.id);
+    const { id } = await params;
+    const customerId = parseInt(id);
     const customerOrders = await db
       .select()
       .from(orders)

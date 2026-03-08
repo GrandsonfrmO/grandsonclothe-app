@@ -2,21 +2,18 @@ import { db } from '@/lib/db';
 import { wishlist, products } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { cookies } from 'next/headers';
-import jwt from 'jsonwebtoken';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 async function getUserId() {
   const cookieStore = await cookies();
-  const token = cookieStore.get('token')?.value;
+  const authToken = cookieStore.get('auth_token')?.value;
 
-  if (!token) {
+  if (!authToken) {
     return null;
   }
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: number };
-    return decoded.userId;
+    const parsed = JSON.parse(authToken) as { userId: number };
+    return parsed.userId;
   } catch {
     return null;
   }

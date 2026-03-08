@@ -25,6 +25,11 @@ export async function POST(request: NextRequest) {
     }
 
     const order = orderResult[0];
+    
+    if (!order.userId) {
+      return NextResponse.json({ error: 'Order has no user' }, { status: 400 });
+    }
+    
     const userResult = await db
       .select()
       .from(users)

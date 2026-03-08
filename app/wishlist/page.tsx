@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { useWishlist } from '@/lib/wishlist-context';
@@ -6,8 +8,6 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Heart, ShoppingCart, ArrowLeft } from 'lucide-react';
-
-'use client';
 
 interface WishlistProduct {
   id: number;

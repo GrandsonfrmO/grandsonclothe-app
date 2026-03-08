@@ -25,7 +25,7 @@ export async function createProduct(name: string, description: string, price: st
 }
 
 // Orders
-export async function createOrder(userId: number, totalAmount: string, paymentMethod: string = 'cash_on_delivery', deliveryAddress?: string, phoneNumber?: string) {
+export async function createOrder(userId: number, totalAmount: string, paymentMethod: 'cash_on_delivery' = 'cash_on_delivery', deliveryAddress?: string, phoneNumber?: string) {
   return db.insert(orders).values({ userId, totalAmount, paymentMethod, deliveryAddress, phoneNumber }).returning();
 }
 

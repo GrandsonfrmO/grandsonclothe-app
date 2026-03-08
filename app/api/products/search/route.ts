@@ -33,38 +33,38 @@ export async function GET(request: NextRequest) {
 
     // Price filters
     if (minPrice) {
-      filters.push(gte(products.price, parseFloat(minPrice)));
+      filters.push(gte(products.price, minPrice));
     }
     if (maxPrice) {
-      filters.push(lte(products.price, parseFloat(maxPrice)));
+      filters.push(lte(products.price, maxPrice));
     }
 
     // Build query
-    let query_builder = db.select().from(products);
+    let queryBuilder = db.select().from(products);
 
     if (filters.length > 0) {
-      query_builder = query_builder.where(and(...filters));
+      queryBuilder = queryBuilder.where(and(...filters)) as any;
     }
 
     // Apply sorting
     switch (sortBy) {
       case 'price-asc':
-        query_builder = query_builder.orderBy(products.price);
+        queryBuilder = queryBuilder.orderBy(products.price) as any;
         break;
       case 'price-desc':
-        query_builder = query_builder.orderBy(products.price);
+        queryBuilder = queryBuilder.orderBy(products.price) as any;
         break;
       case 'popular':
         // For now, just order by ID (in production, use view count or sales)
-        query_builder = query_builder.orderBy(products.id);
+        queryBuilder = queryBuilder.orderBy(products.id) as any;
         break;
       case 'newest':
       default:
-        query_builder = query_builder.orderBy(products.createdAt);
+        queryBuilder = queryBuilder.orderBy(products.createdAt) as any;
         break;
     }
 
-    const allResults = await query_builder;
+    const allResults = await queryBuilder;
 
     // Reverse for descending price
     if (sortBy === 'price-desc') {

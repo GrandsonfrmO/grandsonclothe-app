@@ -27,9 +27,11 @@ export async function GET() {
     }
 
     allOrders.forEach(order => {
-      const dateStr = new Date(order.createdAt).toISOString().split('T')[0];
-      if (dateStr in revenueByDay) {
-        revenueByDay[dateStr] += parseFloat(order.totalAmount);
+      if (order.createdAt) {
+        const dateStr = new Date(order.createdAt).toISOString().split('T')[0];
+        if (dateStr in revenueByDay) {
+          revenueByDay[dateStr] += parseFloat(order.totalAmount);
+        }
       }
     });
 
@@ -43,13 +45,17 @@ export async function GET() {
     };
 
     allOrders.forEach(order => {
-      ordersByStatus[order.status] = (ordersByStatus[order.status] || 0) + 1;
+      if (order.status) {
+        ordersByStatus[order.status] = (ordersByStatus[order.status] || 0) + 1;
+      }
     });
 
     // Top products
     const productSales: Record<number, number> = {};
     allOrderItems.forEach(item => {
-      productSales[item.productId] = (productSales[item.productId] || 0) + 1;
+      if (item.productId) {
+        productSales[item.productId] = (productSales[item.productId] || 0) + 1;
+      }
     });
 
     const topProducts = Object.entries(productSales)

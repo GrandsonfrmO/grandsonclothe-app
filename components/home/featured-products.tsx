@@ -49,7 +49,7 @@ interface FeaturedProductsProps {
   showAll?: boolean
 }
 
-function ProductsGrid({ products }: { products: typeof products }) {
+function ProductsGrid({ products }: { products: any[] }) {
   return (
     <div className="flex gap-4 overflow-x-auto px-4 pb-4 scrollbar-hide snap-x snap-mandatory">
       {products.map((product) => (

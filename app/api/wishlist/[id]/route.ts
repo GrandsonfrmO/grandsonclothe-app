@@ -2,38 +2,37 @@ import { db } from '@/lib/db';
 import { wishlist } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { cookies } from 'next/headers';
-import jwt from 'jsonwebtoken';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+import { NextRequest } from 'next/server';
 
 async function getUserId() {
   const cookieStore = await cookies();
-  const token = cookieStore.get('token')?.value;
+  const authToken = cookieStore.get('auth_token')?.value;
 
-  if (!token) {
+  if (!authToken) {
     return null;
   }
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: number };
-    return decoded.userId;
+    const parsed = JSON.parse(authToken) as { userId: number };
+    return parsed.userId;
   } catch {
     return null;
   }
 }
 
 export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const userId = await getUserId();
 
     if (!userId) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const productId = parseInt(params.id);
+    const productId = parseInt(id);
 
     if (isNaN(productId)) {
       return Response.json({ error: 'Invalid product ID' }, { status: 400 });

@@ -35,7 +35,7 @@ export function generateMetadata(seo: SEOMetadata): Metadata {
           type: 'image/png',
         },
       ],
-      type: seo.type || 'website',
+      type: (seo.type === 'product' ? 'website' : seo.type) || 'website',
       locale: 'fr_FR',
     },
     twitter: {

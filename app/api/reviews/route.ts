@@ -57,18 +57,19 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify user has purchased this product
-    const hasPurchased = await db.query.orderItems.findFirst({
-      where: and(
-        eq(orderItems.productId, productId),
-      ),
-      with: {
-        order: {
-          where: eq(orders.userId, userId),
-        },
-      },
-    });
+    const userOrders = await db
+      .select()
+      .from(orderItems)
+      .innerJoin(orders, eq(orderItems.orderId, orders.id))
+      .where(
+        and(
+          eq(orderItems.productId, productId),
+          eq(orders.userId, userId)
+        )
+      )
+      .limit(1);
 
-    if (!hasPurchased) {
+    if (userOrders.length === 0) {
       return NextResponse.json(
         { error: 'You must purchase this product to leave a review' },
         { status: 403 }
