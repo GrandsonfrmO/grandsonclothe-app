@@ -1,5 +1,3 @@
-'use client';
-
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { MobileHeader } from '@/components/mobile-header';
@@ -35,6 +33,8 @@ interface Product {
   category: string;
   stock: number;
 }
+
+'use client';
 
 function SearchContent() {
   const searchParams = useSearchParams();

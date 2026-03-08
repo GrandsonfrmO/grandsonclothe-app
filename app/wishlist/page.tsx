@@ -1,5 +1,3 @@
-'use client';
-
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { useWishlist } from '@/lib/wishlist-context';
@@ -17,7 +15,9 @@ export const metadata: Metadata = {
     index: false,
     follow: false,
   },
-}
+};
+
+'use client';
 
 interface WishlistProduct {
   id: number;
