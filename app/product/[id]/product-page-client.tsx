@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react"
+import { useState, use } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { ArrowLeft, Share2, Star, Minus, Plus, ShoppingBag, Check, Truck, RotateCcw, Shield } from "lucide-react"
@@ -11,7 +11,9 @@ import { ReviewsList } from "@/components/reviews-list"
 import { WishlistButton } from "@/components/wishlist-button"
 import { useCart } from "@/lib/cart-context"
 import { useAuth } from "@/lib/auth-context"
-import { formatPrice } from "@/lib/products"
+import { products, formatPrice } from "@/lib/products"
+import { SchemaScript } from "@/components/schema-script"
+import { generateProductSchema } from "@/lib/schema"
 
 interface Product {
   id: number
@@ -29,7 +31,9 @@ interface Product {
   reviews: number
 }
 
-export function ProductPageClient({ product }: { product: Product }) {
+export function ProductPageClient({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params)
+  const product = products.find(p => p.id === parseInt(id))
   const { user } = useAuth()
   const [selectedSize, setSelectedSize] = useState<string | null>(null)
   const [selectedColor, setSelectedColor] = useState(0)
@@ -38,6 +42,25 @@ export function ProductPageClient({ product }: { product: Product }) {
   const [addedToCart, setAddedToCart] = useState(false)
   const [reviewRefresh, setReviewRefresh] = useState(0)
   const { addItem } = useCart()
+
+  if (!product) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Produit non trouve</p>
+      </div>
+    )
+  }
+
+  const productSchema = generateProductSchema({
+    id: product.id,
+    name: product.name,
+    description: product.description,
+    price: product.price,
+    image: product.image,
+    rating: product.rating,
+    reviews: product.reviews,
+    category: product.category,
+  })
 
   const handleAddToCart = () => {
     if (!selectedSize) return
@@ -61,7 +84,9 @@ export function ProductPageClient({ product }: { product: Product }) {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <>
+      <SchemaScript schema={productSchema} />
+      <div className="min-h-screen bg-background pb-24">
       {/* Header */}
       <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
         <div className="flex items-center justify-between px-4 py-3">
@@ -280,6 +305,6 @@ export function ProductPageClient({ product }: { product: Product }) {
       </div>
 
       <BottomNav />
-    </div>
+    </>
   )
 }

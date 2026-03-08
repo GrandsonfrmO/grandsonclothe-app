@@ -1,13 +1,8 @@
-import { use } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { ArrowLeft, Share2 } from "lucide-react"
-import { SchemaScript } from "@/components/schema-script"
-import { generateProductSchema } from "@/lib/schema"
-import { products, formatPrice } from "@/lib/products"
+import { products } from "@/lib/products"
+import type { Metadata } from 'next'
 import { ProductPageClient } from "./product-page-client"
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
   const product = products.find(p => p.id === parseInt(id))
 
@@ -36,10 +31,9 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
           width: 1200,
           height: 1200,
           alt: product.name,
-          type: 'image/jpeg',
         },
       ],
-      type: 'product',
+      type: 'article',
       locale: 'fr_FR',
     },
     twitter: {
@@ -56,33 +50,5 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 }
 
 export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
-  'use client';
-  const { id } = use(params)
-  const product = products.find(p => p.id === parseInt(id))
-
-  if (!product) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground">Produit non trouve</p>
-      </div>
-    )
-  }
-
-  const productSchema = generateProductSchema({
-    id: product.id,
-    name: product.name,
-    description: product.description,
-    price: product.price,
-    image: product.image,
-    rating: product.rating,
-    reviews: product.reviews,
-    category: product.category,
-  })
-
-  return (
-    <>
-      <SchemaScript schema={productSchema} />
-      <ProductPageClient product={product} />
-    </>
-  )
+  return <ProductPageClient params={params} />
 }

@@ -33,10 +33,10 @@ export async function GET(request: NextRequest) {
 
     // Price filters
     if (minPrice) {
-      filters.push(gte(products.price, minPrice));
+      filters.push(gte(products.price, parseInt(minPrice)));
     }
     if (maxPrice) {
-      filters.push(lte(products.price, maxPrice));
+      filters.push(lte(products.price, parseInt(maxPrice)));
     }
 
     // Build query

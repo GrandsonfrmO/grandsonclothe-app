@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAllProducts, createProduct } from '@/lib/db/queries';
+import { db } from '@/lib/db';
+import { products } from '@/lib/db/schema';
 
 export const revalidate = 3600; // Cache for 1 hour
 
@@ -13,10 +15,10 @@ export async function GET(request: NextRequest) {
     
     const allProducts = await getAllProducts();
     const total = allProducts.length;
-    const products = allProducts.slice(offset, offset + limit);
+    const productList = allProducts.slice(offset, offset + limit);
     
     return NextResponse.json({
-      data: products,
+      data: productList,
       pagination: {
         page,
         limit,
@@ -35,9 +37,25 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { name, description, price, image, category, stock } = body;
 
-    const product = await createProduct(name, description, price, image, category, stock);
-    return NextResponse.json(product, { status: 201 });
+    if (!name || !price || !category) {
+      return NextResponse.json(
+        { error: 'Missing required fields: name, price, category' },
+        { status: 400 }
+      );
+    }
+
+    const newProduct = await db.insert(products).values({
+      name,
+      description: description || '',
+      price,
+      image: image || '',
+      category,
+      stock: stock || 0,
+    }).returning();
+
+    return NextResponse.json(newProduct[0], { status: 201 });
   } catch (error) {
+    console.error('Error creating product:', error);
     return NextResponse.json({ error: 'Failed to create product' }, { status: 500 });
   }
 }

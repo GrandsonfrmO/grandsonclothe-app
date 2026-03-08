@@ -16,15 +16,10 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const productReviews = await db.query.reviews.findMany({
-      where: eq(reviews.productId, parseInt(productId)),
-      with: {
-        user: {
-          columns: { id: true, name: true },
-        },
-      },
-      orderBy: (reviews, { desc }) => [desc(reviews.createdAt)],
-    });
+    const productReviews = await db
+      .select()
+      .from(reviews)
+      .where(eq(reviews.productId, parseInt(productId)));
 
     return NextResponse.json(productReviews);
   } catch (error) {
@@ -77,14 +72,18 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user already reviewed this product
-    const existingReview = await db.query.reviews.findFirst({
-      where: and(
-        eq(reviews.productId, productId),
-        eq(reviews.userId, userId)
-      ),
-    });
+    const existingReview = await db
+      .select()
+      .from(reviews)
+      .where(
+        and(
+          eq(reviews.productId, productId),
+          eq(reviews.userId, userId)
+        )
+      )
+      .limit(1);
 
-    if (existingReview) {
+    if (existingReview.length > 0) {
       return NextResponse.json(
         { error: 'You have already reviewed this product' },
         { status: 400 }
