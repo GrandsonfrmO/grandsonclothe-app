@@ -1,0 +1,120 @@
+"use client"
+
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { 
+  LayoutDashboard, 
+  Package, 
+  ShoppingCart, 
+  Users, 
+  BarChart3, 
+  Settings, 
+  LogOut,
+  Menu,
+  X
+} from "lucide-react"
+import { useState } from "react"
+
+const navItems = [
+  { href: "/admin", icon: LayoutDashboard, label: "Dashboard" },
+  { href: "/admin/products", icon: Package, label: "Produits" },
+  { href: "/admin/orders", icon: ShoppingCart, label: "Commandes" },
+  { href: "/admin/customers", icon: Users, label: "Clients" },
+  { href: "/admin/analytics", icon: BarChart3, label: "Analytics" },
+  { href: "/admin/settings", icon: Settings, label: "Parametres" },
+]
+
+export function AdminSidebar() {
+  const pathname = usePathname()
+  const [isOpen, setIsOpen] = useState(false)
+
+  return (
+    <>
+      {/* Mobile Menu Button */}
+      <button
+        onClick={() => setIsOpen(true)}
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-card border border-border rounded-lg"
+      >
+        <Menu className="w-6 h-6" />
+      </button>
+
+      {/* Overlay */}
+      {isOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black/50 z-40"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside className={`
+        fixed lg:static inset-y-0 left-0 z-50
+        w-64 bg-card border-r border-border
+        transform transition-transform duration-300 ease-in-out
+        ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      `}>
+        <div className="flex flex-col h-full">
+          {/* Logo */}
+          <div className="flex items-center justify-between h-16 px-6 border-b border-border">
+            <Link href="/admin" className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
+                <span className="text-accent-foreground font-bold text-sm">GC</span>
+              </div>
+              <span className="font-bold text-lg">Admin</span>
+            </Link>
+            <button
+              onClick={() => setIsOpen(false)}
+              className="lg:hidden p-1 hover:bg-secondary rounded"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Navigation */}
+          <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+            {navItems.map((item) => {
+              const isActive = pathname === item.href
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setIsOpen(false)}
+                  className={`
+                    flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-all
+                    ${isActive 
+                      ? 'bg-accent text-accent-foreground' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+                    }
+                  `}
+                >
+                  <item.icon className="w-5 h-5" />
+                  {item.label}
+                </Link>
+              )
+            })}
+          </nav>
+
+          {/* Footer */}
+          <div className="p-3 border-t border-border">
+            <div className="flex items-center gap-3 px-3 py-2 mb-2">
+              <div className="w-10 h-10 bg-secondary rounded-full flex items-center justify-center">
+                <span className="font-semibold">AD</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium truncate">Admin</p>
+                <p className="text-xs text-muted-foreground truncate">admin@grandson.gn</p>
+              </div>
+            </div>
+            <Link
+              href="/"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+            >
+              <LogOut className="w-5 h-5" />
+              Deconnexion
+            </Link>
+          </div>
+        </div>
+      </aside>
+    </>
+  )
+}
