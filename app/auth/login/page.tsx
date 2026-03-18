@@ -6,9 +6,11 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Mail, Lock, AlertCircle, Loader2, ArrowLeft, Eye, EyeOff, CheckCircle2 } from "lucide-react"
+import { useAuth } from "@/lib/auth-context"
 
 export default function LoginPage() {
   const router = useRouter()
+  const { login } = useAuth()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -26,28 +28,13 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        setError(data.error || "Erreur de connexion")
-        setLoading(false)
-        return
-      }
-
-      // Rediriger selon le rôle
-      if (data.user.role === "admin") {
-        router.push("/2tact/dashboard")
-      } else {
-        router.push("/profile")
-      }
+      await login(email, password)
+      
+      // La redirection est immédiate car useAuth a mis à jour le state
+      // On force la redirection vers le dashboard pour les admins
+      router.push("/2tact/dashboard")
     } catch (err) {
-      setError("Erreur de connexion. Veuillez réessayer.")
+      setError(err instanceof Error ? err.message : "Erreur de connexion. Veuillez réessayer.")
       setLoading(false)
     }
   }
@@ -56,7 +43,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5 flex flex-col items-center justify-center p-4 relative overflow-hidden">
-      {/* Animated Decorative elements */}
+      {/* Decorative elements */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-accent/10 rounded-full blur-3xl -z-10 animate-pulse" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-accent/5 rounded-full blur-3xl -z-10 animate-pulse" style={{ animationDelay: "1s" }} />
 
