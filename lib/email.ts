@@ -869,17 +869,38 @@ export const sendAdminLoginNotification = async (
       timeZone: 'Africa/Conakry'
     });
 
+    // Localisation (Vercel headers ou fallback)
+    const city = request.headers.get('x-vercel-ip-city');
+    const country = request.headers.get('x-vercel-ip-country');
+    const region = request.headers.get('x-vercel-ip-country-region');
+    
+    let location = 'Non disponible';
+    if (city || country) {
+      location = `${city ? city + ', ' : ''}${region ? region + ', ' : ''}${country || ''}`;
+    } else if (ipAddress !== 'Non disponible' && ipAddress !== '::1' && ipAddress !== '127.0.0.1') {
+      try {
+        // Fallback simple si pas sur Vercel
+        const geoRes = await fetch(`https://ipapi.co/${ipAddress.split(',')[0].trim()}/json/`);
+        if (geoRes.ok) {
+          const geoData = await geoRes.json();
+          location = `${geoData.city}, ${geoData.region}, ${geoData.country_name}`;
+        }
+      } catch (e) {
+        console.error('Geo IP error:', e);
+      }
+    }
+
     const response = await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
       to: adminEmail,
-      subject: `🔐 Connexion à votre compte admin - ${EMAIL_CONFIG.brandName}`,
+      subject: `🔐 Alerte Sécurité : Nouvelle connexion Admin - ${EMAIL_CONFIG.brandName}`,
       html: getAdminLoginNotificationTemplate({
         adminName,
         adminEmail,
         loginTime,
         ipAddress,
         userAgent: deviceInfo,
-        location: null, // Peut être ajouté avec un service de géolocalisation
+        location: location,
       }),
     });
     
