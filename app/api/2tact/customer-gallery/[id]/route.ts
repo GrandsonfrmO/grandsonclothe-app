@@ -2,13 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { customerGallery } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import { requireAdmin, isNextResponse } from '@/lib/auth-middleware';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
+    const adminCheck = await requireAdmin(request);
+    if (isNextResponse(adminCheck)) return adminCheck;
+
+    const { id: idStr } = await params;
+    const id = parseInt(idStr);
 
     const result = await db
       .select()
@@ -39,10 +44,14 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
+    const adminCheck = await requireAdmin(request);
+    if (isNextResponse(adminCheck)) return adminCheck;
+
+    const { id: idStr } = await params;
+    const id = parseInt(idStr);
     const body = await request.json();
     const { imageUrl, customerName, caption, productId, isApproved, isActive, displayOrder } = body;
 
@@ -74,10 +83,14 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
+    const adminCheck = await requireAdmin(request);
+    if (isNextResponse(adminCheck)) return adminCheck;
+
+    const { id: idStr } = await params;
+    const id = parseInt(idStr);
 
     const deleted = await db
       .delete(customerGallery)

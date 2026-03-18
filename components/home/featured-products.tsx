@@ -50,22 +50,31 @@ export function FeaturedProducts({ title, showAll = true, sortBy = 'recent' }: F
   }, [sortBy])
 
   return (
-    <section className="py-6">
-      <div className="flex items-center justify-between px-4 mb-4">
-        <h3 className="text-xl font-bold">{title}</h3>
+    <section className="py-2 md:py-4">
+      <div className="flex items-center justify-between px-6 md:px-8 mb-4">
+        <div className="flex items-center gap-3">
+          <div className="w-1 h-4 bg-accent rounded-full" />
+          <h3 className="text-lg md:text-xl font-black italic tracking-tighter uppercase" style={{ fontFamily: 'var(--font-display)' }}>
+            {title}
+          </h3>
+        </div>
         {showAll && (
           <Link
             href={`/explorer?sort=${sortBy}`}
-            className="flex items-center gap-1 text-sm text-accent hover:underline"
+            className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-accent/60 hover:text-accent transition-colors"
           >
             Voir tout
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-3 h-3" />
           </Link>
         )}
       </div>
 
       {loading ? (
-        <div className="px-4 py-8 text-center text-muted-foreground">Chargement...</div>
+        <div className="flex gap-4 overflow-x-auto px-6 md:px-8 pb-4 scrollbar-hide">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="min-w-[200px] h-[300px] bg-white/5 rounded-[2rem] animate-pulse" />
+          ))}
+        </div>
       ) : (
         <ProductsGrid products={products} />
       )}

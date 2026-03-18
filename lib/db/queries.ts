@@ -1,6 +1,6 @@
 import { db } from './index';
 import { users, products, orders, orderItems, cart } from './schema';
-import { eq, and, desc, asc } from 'drizzle-orm';
+import { eq, and, desc, asc, sql } from 'drizzle-orm';
 
 // Users
 export async function createUser(email: string, name: string, password: string) {
@@ -49,9 +49,9 @@ export async function getProductsPaginated(options: {
       break;
   }
 
-  // Get total count for pagination efficiently
-  const countResult = await db.select({ count: products.id }).from(products);
-  const total = countResult.length; // In Drizzle with SQLite/Postgres without count() helper, this is common, but let's be more specific if possible.
+  // Use a more efficient count in the DB
+  const countResult = await db.select({ count: sql<number>`count(*)` }).from(products);
+  const total = Number(countResult[0]?.count || 0);
   // Using a more efficient count if the DB supports it, otherwise this is fine for small/medium datasets.
   // For better performance on large sets, use sql`count(*)`
   

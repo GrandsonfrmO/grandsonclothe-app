@@ -25,6 +25,15 @@ export function SiteLogo({ className = "", showTagline = false, linkTo = "/" }: 
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    // 1. Lire le cache immédiatement pour l'affichage (évite le délai) sans casser l'Hydration React
+    try {
+      const cached = localStorage.getItem('site-logo-cache')
+      if (cached) {
+        setSettings(JSON.parse(cached))
+      }
+    } catch (e) {}
+
+    // 2. Lancer la requête en arrière-plan
     loadSettings()
 
     // Écouter les mises à jour du logo
@@ -45,6 +54,9 @@ export function SiteLogo({ className = "", showTagline = false, linkTo = "/" }: 
       if (response.ok) {
         const data = await response.json()
         setSettings(data)
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('site-logo-cache', JSON.stringify(data))
+        }
       }
     } catch (error) {
       console.error('Error loading logo settings:', error)

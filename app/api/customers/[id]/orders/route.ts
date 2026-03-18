@@ -16,11 +16,28 @@ export async function GET(
 
   try {
     const { id } = await params;
-    const customerId = parseInt(id);
-    const customerOrders = await db
-      .select()
-      .from(orders)
-      .where(eq(orders.userId, customerId));
+    
+    let customerOrders;
+    if (id.startsWith('user-')) {
+      const userId = parseInt(id.replace('user-', ''));
+      customerOrders = await db
+        .select()
+        .from(orders)
+        .where(eq(orders.userId, userId));
+    } else if (id.startsWith('guest-')) {
+      const guestEmail = id.replace('guest-', '');
+      customerOrders = await db
+        .select()
+        .from(orders)
+        .where(eq(orders.guestEmail, guestEmail));
+    } else {
+      // Pour la compatibilité ascendante avec les ID numériques simples
+      const userId = parseInt(id);
+      customerOrders = await db
+        .select()
+        .from(orders)
+        .where(eq(orders.userId, userId));
+    }
 
     return NextResponse.json(customerOrders);
   } catch (error) {

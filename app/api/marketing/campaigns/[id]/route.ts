@@ -7,15 +7,17 @@ import { eq } from 'drizzle-orm';
 // GET - Récupérer une campagne spécifique
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
+  const campaignId = parseInt(id);
+
   const authResult = await requireAdmin(request);
   if (authResult instanceof NextResponse) {
     return authResult;
   }
 
   try {
-    const campaignId = parseInt(params.id);
     const [campaign] = await db
       .select()
       .from(marketingCampaigns)
@@ -41,15 +43,17 @@ export async function GET(
 // PATCH - Mettre à jour une campagne
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
+  const campaignId = parseInt(id);
+
   const authResult = await requireAdmin(request);
   if (authResult instanceof NextResponse) {
     return authResult;
   }
 
   try {
-    const campaignId = parseInt(params.id);
     const body = await request.json();
 
     // Vérifier que la campagne existe
@@ -96,16 +100,17 @@ export async function PATCH(
 // DELETE - Supprimer une campagne
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
+  const campaignId = parseInt(id);
+
   const authResult = await requireAdmin(request);
   if (authResult instanceof NextResponse) {
     return authResult;
   }
 
   try {
-    const campaignId = parseInt(params.id);
-
     // Vérifier que la campagne existe
     const [existing] = await db
       .select()

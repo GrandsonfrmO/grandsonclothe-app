@@ -2,9 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { heroImages } from '@/lib/db/schema';
 import { desc } from 'drizzle-orm';
+import { requireAdmin, isNextResponse } from '@/lib/auth-middleware';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const adminCheck = await requireAdmin(request);
+    if (isNextResponse(adminCheck)) return adminCheck;
+
     const images = await db
       .select()
       .from(heroImages)
@@ -19,6 +23,9 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const adminCheck = await requireAdmin(request);
+    if (isNextResponse(adminCheck)) return adminCheck;
+
     const body = await request.json();
     const { imageUrl, title, subtitle, ctaText, ctaLink, isActive, displayOrder } = body;
 

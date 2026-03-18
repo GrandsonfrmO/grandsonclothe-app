@@ -58,78 +58,66 @@ export default function AdminLoginPage() {
   if (!mounted) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5 flex flex-col items-center justify-center p-4 relative overflow-hidden">
-      {/* Animated Decorative elements */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-red-500/10 rounded-full blur-3xl -z-10 animate-pulse" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-red-500/5 rounded-full blur-3xl -z-10 animate-pulse" style={{ animationDelay: '1s' }} />
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-secondary/10 via-background to-background flex flex-col items-center justify-center p-4 relative overflow-hidden">
+      {/* Aurora Effects */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-accent/5 rounded-full blur-[120px] -z-10 animate-pulse" />
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-[120px] -z-10 animate-pulse" style={{ animationDelay: '2s' }} />
 
-      <div className="w-full max-w-md">
-        {/* Back Button */}
-        <Link href="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8 transition-all duration-300 group">
-          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" />
-          <span>Retour</span>
+      <div className="w-full max-w-lg">
+        {/* Back Button High-End */}
+        <Link href="/" className="inline-flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground hover:text-accent mb-12 transition-all duration-500 group">
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-2 transition-transform duration-500" />
+          <span>Quitter la Zone de Sécurité</span>
         </Link>
 
-        {/* Logo/Header */}
-        <div className="text-center mb-10 animate-in fade-in slide-in-from-top-4 duration-500">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-red-500 to-red-600 mb-6 shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:scale-105">
-            <Shield className="w-8 h-8 text-white" />
+        {/* Logo/Header Royal */}
+        <div className="text-center mb-12 animate-in fade-in slide-in-from-top-4 duration-1000">
+          <div className="relative inline-flex items-center justify-center w-24 h-24 rounded-[2rem] bg-card/40 backdrop-blur-xl border border-border/40 mb-8 shadow-2xl group transition-transform duration-700 hover:rotate-[360deg] cursor-pointer">
+            <div className="absolute inset-0 bg-accent/10 blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+            <Shield className="w-12 h-12 text-accent" />
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-red-500 via-red-500 to-red-600 bg-clip-text text-transparent mb-2">
-            GRANDSON CLOTHES
+          <h1 className="text-5xl font-black italic tracking-tighter text-foreground mb-4 drop-shadow-sm">
+            PORTAIL <span className="text-accent underline decoration-accent/20 underline-offset-8">IMPÉRIAL</span>
           </h1>
-          <p className="text-muted-foreground text-lg">Espace Administrateur</p>
+          <p className="text-sm font-black text-muted-foreground uppercase tracking-[0.4em] opacity-40">Grandson Clothes Admin Hub</p>
         </div>
 
-        {/* Login Card */}
-        <div className="bg-background/80 backdrop-blur-xl border border-border/50 rounded-3xl p-8 shadow-2xl hover:shadow-3xl transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          {/* Security Warning */}
-          <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl">
-            <div className="flex gap-3">
-              <Shield className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-              <div>
-                <p className="font-medium text-amber-600 text-sm">Zone sécurisée</p>
-                <p className="text-xs text-amber-600/80 mt-1">
-                  Accès réservé aux administrateurs uniquement
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <form onSubmit={handleLogin} className="space-y-5">
-            {/* Email */}
-            <div className="space-y-2 group">
-              <label className="block text-sm font-semibold text-foreground">Email Admin</label>
+        {/* Login Card Glassmorphism */}
+        <div className="bg-card/40 backdrop-blur-2xl border border-border/40 rounded-[3.5rem] p-12 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] hover:shadow-accent/5 transition-all duration-700 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+          <form onSubmit={handleLogin} className="space-y-8">
+            {/* Email Royal */}
+            <div className="space-y-3 group">
+              <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1 group-focus-within:text-accent transition-colors">Identifiant d'Accès</label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-red-500 transition-colors duration-300" />
+                <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-accent transition-all duration-500" />
                 <Input
                   type="email"
-                  placeholder="admin@grandsonclothes.com"
+                  placeholder="admin@grandson-prestige.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="pl-12 h-12 bg-secondary/50 border border-border/50 rounded-xl focus:border-red-500/50 focus:bg-secondary transition-all duration-300 focus:ring-2 focus:ring-red-500/20"
+                  className="pl-14 h-16 bg-secondary/30 border-none rounded-2xl text-lg font-black italic tracking-tight focus:ring-0 shadow-inner group-focus-within:bg-secondary/50 transition-all"
                   required
                 />
               </div>
             </div>
 
-            {/* Password */}
-            <div className="space-y-2 group">
-              <label className="block text-sm font-semibold text-foreground">Mot de passe</label>
+            {/* Password Royal */}
+            <div className="space-y-3 group">
+              <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1 group-focus-within:text-accent transition-colors">Code de Chiffrement</label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-red-500 transition-colors duration-300" />
+                <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-accent transition-all duration-500" />
                 <Input
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="••••••••"
+                  placeholder="••••••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pl-12 pr-12 h-12 bg-secondary/50 border border-border/50 rounded-xl focus:border-red-500/50 focus:bg-secondary transition-all duration-300 focus:ring-2 focus:ring-red-500/20"
+                  className="pl-14 pr-14 h-16 bg-secondary/30 border-none rounded-2xl text-lg font-black italic tracking-tight focus:ring-0 shadow-inner group-focus-within:bg-secondary/50 transition-all font-mono"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors duration-300 hover:scale-110"
+                  className="absolute right-5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-accent transition-all duration-500 hover:scale-125"
                 >
                   {showPassword ? (
                     <EyeOff className="w-5 h-5" />
@@ -140,56 +128,61 @@ export default function AdminLoginPage() {
               </div>
             </div>
 
-            {/* Error Message */}
+            {/* Error Message Premium */}
             {error && (
-              <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/20 rounded-xl animate-in fade-in slide-in-from-top-2 duration-300">
-                <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />
-                <p className="text-sm text-red-500 font-medium">{error}</p>
+              <div className="flex items-center gap-4 p-5 bg-red-500/10 border border-red-500/20 rounded-2xl animate-in slide-in-from-top-2 duration-500 shadow-lg shadow-red-500/5">
+                <AlertCircle className="w-6 h-6 text-red-500 shrink-0" />
+                <p className="text-xs font-black uppercase text-red-500 tracking-wider">Accès Révoqué: {error}</p>
               </div>
             )}
 
-            {/* Submit Button */}
+            {/* Submit Button Royal */}
             <Button
               type="submit"
               disabled={loading}
-              className="w-full h-12 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold rounded-xl gap-2 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 transform hover:scale-105 active:scale-95"
+              className="group relative w-full h-20 bg-accent hover:bg-accent/90 text-white font-black italic text-xl rounded-[2rem] gap-4 transition-all duration-500 shadow-2xl shadow-accent/20 disabled:opacity-50 hover:scale-[1.02] active:scale-95 overflow-hidden"
             >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
               {loading ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Connexion en cours...
+                  <Loader2 className="w-6 h-6 animate-spin" />
+                  Authentification...
                 </>
               ) : (
-                'Accéder au Dashboard'
+                <>
+                  INITIALISER LA SESSION <ArrowLeft className="w-6 h-6 rotate-180" />
+                </>
               )}
             </Button>
           </form>
 
-          {/* Divider */}
-          <div className="flex items-center gap-3 my-6">
-            <div className="flex-1 h-px bg-gradient-to-r from-border/0 via-border/50 to-border/0" />
-            <span className="text-xs text-muted-foreground">ou</span>
-            <div className="flex-1 h-px bg-gradient-to-r from-border/0 via-border/50 to-border/0" />
+          {/* Luxury Divider */}
+          <div className="flex items-center gap-6 my-10">
+            <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-border/50 to-transparent" />
+            <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-30">Contrôle Alternatives</span>
+            <div className="flex-1 h-[1px] bg-gradient-to-r from-border/0 via-border/50 to-border/0" />
           </div>
 
-          {/* Back to buyer login */}
+          {/* Alternative Accès */}
           <Button
             asChild
             variant="outline"
-            className="w-full h-12 rounded-xl font-semibold border-border/50 hover:bg-secondary/50 transition-all duration-300 transform hover:scale-105 active:scale-95"
+            className="w-full h-16 rounded-2xl font-black text-xs uppercase tracking-widest border-border/40 hover:bg-secondary/40 transition-all duration-500 hover:scale-x-105"
           >
             <Link href="/auth/login">
-              Connexion Client
+              RETOUR AU SECTEUR CIVIL
             </Link>
           </Button>
         </div>
 
-        {/* Info */}
-        <div className="mt-8 text-center text-xs text-muted-foreground">
-          <p>Vous n'êtes pas administrateur ?</p>
-          <Link href="/auth/login" className="text-red-500 hover:text-red-600 font-medium">
-            Accédez à la connexion client
-          </Link>
+        {/* Footer Royal */}
+        <div className="mt-12 text-center space-y-4">
+          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-40">Système de Surveillance Actif</p>
+          <div className="flex justify-center gap-8">
+             <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shadow-lg shadow-green-500/50" />
+             <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse shadow-lg shadow-accent/50" style={{ animationDelay: '0.5s' }} />
+             <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse shadow-lg shadow-blue-500/50" style={{ animationDelay: '1s' }} />
+          </div>
         </div>
       </div>
     </div>

@@ -13,6 +13,7 @@ import { formatPrice } from '@/lib/format-price'
 
 interface FormData {
   fullName: string
+  email: string
   phoneNumber: string
   deliveryAddress: string
 }
@@ -24,23 +25,22 @@ export default function CheckoutPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState<FormData>({
     fullName: '',
+    email: '',
     phoneNumber: '',
     deliveryAddress: '',
   })
   const [deliveryZones, setDeliveryZones] = useState<any[]>([])
   const [selectedZone, setSelectedZone] = useState<any>(null)
 
-  useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      router.push('/auth/login')
-    }
-  }, [loading, isAuthenticated, router])
+   // Retirer la redirection forcée pour permettre le checkout invité
+  // useEffect(() => { ... })
 
   // Pré-remplir les champs avec les données de l'utilisateur
   useEffect(() => {
-    if (user) {
+     if (user) {
       setFormData((prev: FormData) => ({
         fullName: prev.fullName || user.name || '',
+        email: prev.email || user.email || '',
         phoneNumber: prev.phoneNumber || '',
         deliveryAddress: prev.deliveryAddress || '',
       }))
@@ -53,8 +53,9 @@ export default function CheckoutPage() {
             const orders = await response.json()
             if (orders && orders.length > 0) {
               const lastOrder = orders[0]
-              setFormData((prev: FormData) => ({
+               setFormData((prev: FormData) => ({
                 fullName: prev.fullName || user.name || '',
+                email: prev.email || user.email || '',
                 phoneNumber: prev.phoneNumber || (lastOrder.phoneNumber ? lastOrder.phoneNumber.replace(/^\+224/, '') : ''),
                 deliveryAddress: prev.deliveryAddress || lastOrder.deliveryAddress || '',
               }))
@@ -147,7 +148,9 @@ export default function CheckoutPage() {
       }
 
       const orderData = {
-        userId: user?.id,
+        userId: user?.id || null,
+        guestEmail: !user ? formData.email : null,
+        guestName: !user ? formData.fullName : null,
         totalAmount: finalTotal,
         paymentMethod: 'cash_on_delivery',
         deliveryAddress: formData.deliveryAddress,
@@ -207,7 +210,7 @@ export default function CheckoutPage() {
             <h2 className="text-base sm:text-lg font-bold">Adresse de livraison</h2>
           </div>
           <div className="space-y-2 sm:space-y-3">
-            <div>
+             <div>
               <label className="text-xs sm:text-sm font-medium text-muted-foreground">Nom complet</label>
               <Input
                 name="fullName"
@@ -215,8 +218,23 @@ export default function CheckoutPage() {
                 onChange={handleInputChange}
                 placeholder="Votre nom"
                 className="mt-1 bg-secondary border-0 text-sm"
+                required
               />
             </div>
+            {!isAuthenticated && (
+              <div>
+                <label className="text-xs sm:text-sm font-medium text-muted-foreground">Email</label>
+                <Input
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  placeholder="votre@email.com"
+                  className="mt-1 bg-secondary border-0 text-sm"
+                  required
+                />
+              </div>
+            )}
             <div>
               <label className="text-xs sm:text-sm font-medium text-muted-foreground">Numéro de téléphone</label>
               <div className="flex items-center mt-1 gap-0">

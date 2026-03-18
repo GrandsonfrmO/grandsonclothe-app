@@ -9,7 +9,7 @@ interface ColorPickerProps {
   onChange?: (colors: string[]) => void;
 }
 
-const COLORS = [
+export const COLORS = [
   { name: 'Noir', value: 'black', hex: '#000000' },
   { name: 'Blanc', value: 'white', hex: '#FFFFFF' },
   { name: 'Gris', value: 'gray', hex: '#6B7280' },

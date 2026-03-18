@@ -24,3 +24,15 @@ export function verifyToken(token: string): JWTPayload | null {
     return null;
   }
 }
+
+export function decodeToken(token: string): JWTPayload | null {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const payload = JSON.parse(atob(base64));
+    return payload as JWTPayload;
+  } catch (error) {
+    return null;
+  }
+}

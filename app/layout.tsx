@@ -124,8 +124,35 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="fr">
+    <html lang="fr" suppressHydrationWarning>
       <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  const cached = localStorage.getItem('theme-colors');
+                  if (cached) {
+                    const colors = JSON.parse(cached);
+                    const root = document.documentElement;
+                      if (colors.accent) {
+                      root.style.setProperty('--accent', colors.accent);
+                      root.style.setProperty('--ring', colors.primary || colors.accent);
+                      root.style.setProperty('--sidebar-ring', colors.primary || colors.accent);
+                      root.style.setProperty('--chart-1', colors.primary || colors.accent);
+                    }
+                    if (colors.background) {
+                      root.style.setProperty('--background', colors.background);
+                    }
+                    if (colors.foreground) {
+                      root.style.setProperty('--foreground', colors.foreground);
+                    }
+                  }
+                } catch (e) {}
+              })()
+            `,
+          }}
+        />
         <SchemaScript schema={generateOrganizationSchema()} />
         <SchemaScript schema={generateWebsiteSchema()} />
       </head>

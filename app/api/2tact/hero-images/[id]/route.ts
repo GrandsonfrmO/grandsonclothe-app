@@ -2,13 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { heroImages } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import { requireAdmin, isNextResponse } from '@/lib/auth-middleware';
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
+    const adminCheck = await requireAdmin(request);
+    if (isNextResponse(adminCheck)) return adminCheck;
+
+    const { id: idStr } = await params;
+    const id = parseInt(idStr);
     const body = await request.json();
 
     const { imageUrl, title, subtitle, ctaText, ctaLink, isActive, displayOrder } = body;
@@ -37,10 +42,14 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
+    const adminCheck = await requireAdmin(request);
+    if (isNextResponse(adminCheck)) return adminCheck;
+
+    const { id: idStr } = await params;
+    const id = parseInt(idStr);
 
     await db
       .delete(heroImages)

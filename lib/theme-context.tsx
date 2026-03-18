@@ -35,7 +35,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
   const [showToast, setShowToast] = useState(false)
   const [toastColor, setToastColor] = useState('')
-  const refreshTimeoutRef = useRef<NodeJS.Timeout>()
+  const refreshTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined)
 
   const applyTheme = useCallback((themeColors: ThemeColors) => {
     const root = document.documentElement
@@ -43,9 +43,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     // Appliquer toutes les variables CSS en une seule fois
     requestAnimationFrame(() => {
       root.style.setProperty('--accent', themeColors.accent)
-      root.style.setProperty('--ring', themeColors.primary)
-      root.style.setProperty('--sidebar-ring', themeColors.primary)
-      root.style.setProperty('--chart-1', themeColors.primary)
+      root.style.setProperty('--ring', themeColors.primary || themeColors.accent)
+      root.style.setProperty('--sidebar-ring', themeColors.primary || themeColors.accent)
+      root.style.setProperty('--chart-1', themeColors.primary || themeColors.accent)
+      
+      if (themeColors.background) root.style.setProperty('--background', themeColors.background)
+      if (themeColors.foreground) root.style.setProperty('--foreground', themeColors.foreground)
     })
   }, [])
 

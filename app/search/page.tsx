@@ -1,17 +1,18 @@
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState, Suspense, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { formatPriceNumber } from '@/lib/format-price';
 import { MobileHeader } from '@/components/mobile-header';
 import { BottomNav } from '@/components/bottom-nav';
-import { SearchBar } from '@/components/search-bar';
 import { SearchFilters } from '@/components/search-filters';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import Link from 'next/link';
-import { Loader2, Grid3x3, List, SlidersHorizontal, X } from 'lucide-react';
+import Image from 'next/image';
+import { Loader2, SlidersHorizontal, X, Search, Sparkles, ArrowRight, TrendingUp } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface Product {
   id: number;
@@ -25,315 +26,304 @@ interface Product {
 
 function SearchContent() {
   const searchParams = useSearchParams();
+  const inputRef = useRef<HTMLInputElement>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({ total: 0, pages: 0, hasMore: false });
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [showFilters, setShowFilters] = useState(false);
+  const [localQuery, setLocalQuery] = useState(searchParams.get('q') || '');
 
   useEffect(() => {
     const fetchResults = async () => {
       setLoading(true);
       try {
         const params = new URLSearchParams();
-        
         const q = searchParams.get('q');
         if (q) params.append('q', q);
-        
         const category = searchParams.get('category');
         if (category) params.append('category', category);
-        
         const minPrice = searchParams.get('minPrice');
         if (minPrice) params.append('minPrice', minPrice);
-        
         const maxPrice = searchParams.get('maxPrice');
         if (maxPrice) params.append('maxPrice', maxPrice);
-        
         const sortBy = searchParams.get('sortBy');
         if (sortBy) params.append('sortBy', sortBy);
-        
         params.append('page', page.toString());
         params.append('limit', '12');
 
         const response = await fetch(`/api/products/search?${params.toString()}`);
         const data = await response.json();
         setProducts(data.data || data);
-        if (data.pagination) {
-          setPagination(data.pagination);
-        }
+        if (data.pagination) setPagination(data.pagination);
       } catch (error) {
-        console.error('Error fetching search results:', error);
+        console.error('Error:', error);
       } finally {
         setLoading(false);
       }
     };
-
     fetchResults();
   }, [searchParams, page]);
 
-  const activeFilters = [];
-  if (searchParams.get('category')) activeFilters.push({ key: 'category', label: searchParams.get('category') });
-  if (searchParams.get('minPrice')) activeFilters.push({ key: 'minPrice', label: `Min: ${searchParams.get('minPrice')}€` });
-  if (searchParams.get('maxPrice')) activeFilters.push({ key: 'maxPrice', label: `Max: ${searchParams.get('maxPrice')}€` });
+  const activeFilters: { key: string; label: string }[] = [];
+  if (searchParams.get('category')) activeFilters.push({ key: 'category', label: searchParams.get('category')! });
+  if (searchParams.get('minPrice')) activeFilters.push({ key: 'minPrice', label: `Min: ${Number(searchParams.get('minPrice')).toLocaleString()} GNF` });
+  if (searchParams.get('maxPrice')) activeFilters.push({ key: 'maxPrice', label: `Max: ${Number(searchParams.get('maxPrice')).toLocaleString()} GNF` });
 
   const removeFilter = (key: string) => {
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams.toString());
     params.delete(key);
     window.location.href = `/search?${params.toString()}`;
   };
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const params = new URLSearchParams(searchParams.toString());
+    if (localQuery.trim()) params.set('q', localQuery.trim());
+    else params.delete('q');
+    window.location.href = `/search?${params.toString()}`;
+  };
+
+  const query = searchParams.get('q');
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 pb-20">
+    <div className="min-h-screen bg-background pb-32">
       <MobileHeader />
 
-      <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-        {/* Header avec barre de recherche */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Recherche</h1>
-              <p className="text-muted-foreground mt-1">
-                {searchParams.get('q') ? `Résultats pour "${searchParams.get('q')}"` : 'Explorez notre catalogue'}
+      {/* Hero Search Header */}
+      <div className="sticky top-0 z-30 bg-background/70 backdrop-blur-2xl border-b border-border/30">
+        <div className="px-4 md:px-8 py-5 max-w-4xl mx-auto">
+          <form onSubmit={handleSearch} className="relative group">
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground/40 group-focus-within:text-accent transition-colors" />
+            <input
+              ref={inputRef}
+              value={localQuery}
+              onChange={(e) => setLocalQuery(e.target.value)}
+              placeholder="Rechercher un hoodie, t-shirt, pantalon..."
+              className="w-full h-16 pl-14 pr-32 bg-secondary/20 border border-white/5 rounded-[2rem] font-bold text-base focus:outline-none focus:border-accent/40 focus:ring-4 focus:ring-accent/5 focus:bg-secondary/30 transition-all placeholder:text-muted-foreground/30 italic"
+              autoFocus
+            />
+            <button
+              type="submit"
+              className="absolute right-3 top-1/2 -translate-y-1/2 h-10 px-6 bg-accent text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-accent/90 active:scale-95 transition-all shadow-lg shadow-accent/20"
+            >
+              Chercher
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
+        {/* Top Bar */}
+        <div className="flex items-center justify-between mb-8 gap-4 flex-wrap">
+          <div className="space-y-1">
+            {query ? (
+              <>
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-accent" />
+                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40">RÉSULTATS POUR</p>
+                </div>
+                <h1 className="text-3xl md:text-4xl font-black italic tracking-tighter">&ldquo;{query}&rdquo;</h1>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-accent" />
+                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40">CATALOGUE COMPLET</p>
+                </div>
+                <h1 className="text-3xl md:text-4xl font-black italic tracking-tighter">Explorer la Collection</h1>
+              </>
+            )}
+            {!loading && (
+              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/30 mt-1">
+                {pagination.total || products.length} article{(pagination.total || products.length) !== 1 ? 's' : ''} trouvé{(pagination.total || products.length) !== 1 ? 's' : ''}
               </p>
-            </div>
+            )}
           </div>
-          
-          <div className="sticky top-0 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 py-4 -mx-4 px-4 border-b">
-            <SearchBar />
+
+          <div className="flex items-center gap-3">
+            {/* Active filters */}
+            {activeFilters.map((f) => (
+              <Badge
+                key={f.key}
+                className="h-9 px-4 rounded-full bg-accent/10 text-accent border-accent/20 font-black text-[10px] uppercase tracking-widest gap-2 hover:bg-accent/20 transition-all cursor-pointer"
+                onClick={() => removeFilter(f.key)}
+              >
+                {f.label} <X className="w-3 h-3" />
+              </Badge>
+            ))}
+
+            {/* Mobile filter button */}
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="h-11 px-6 rounded-2xl border-white/10 bg-secondary/10 font-black text-[10px] uppercase tracking-widest hover:border-accent/40 gap-2 lg:hidden"
+                >
+                  <SlidersHorizontal className="w-4 h-4" />
+                  Filtres {activeFilters.length > 0 && <span className="w-5 h-5 bg-accent text-white rounded-full text-[9px] flex items-center justify-center">{activeFilters.length}</span>}
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-80 bg-background/95 backdrop-blur-3xl border-l border-white/10 p-6">
+                <div className="flex items-center justify-between mb-8">
+                  <h2 className="text-2xl font-black italic tracking-tighter">Filtres</h2>
+                </div>
+                <SearchFilters />
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
 
-        {/* Filtres actifs */}
-        {activeFilters.length > 0 && (
-          <div className="flex flex-wrap gap-2 items-center">
-            <span className="text-sm text-muted-foreground">Filtres actifs:</span>
-            {activeFilters.map((filter) => (
-              <Badge key={filter.key} variant="secondary" className="gap-1">
-                {filter.label}
-                <button
-                  onClick={() => removeFilter(filter.key)}
-                  className="ml-1 hover:bg-muted rounded-full"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </Badge>
-            ))}
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Sidebar Filtres - Desktop */}
-          <aside className="hidden lg:block lg:col-span-1">
-            <div className="sticky top-32">
+        <div className="flex gap-10">
+          {/* Desktop Sidebar */}
+          <aside className="hidden lg:block w-72 shrink-0">
+            <div className="sticky top-32 bg-secondary/5 border border-white/5 rounded-[2.5rem] p-6">
+              <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 mb-6">Affiner la recherche</h3>
               <SearchFilters />
             </div>
           </aside>
 
-          {/* Filtres Mobile - Overlay */}
-          {showFilters && (
-            <div className="fixed inset-0 z-50 lg:hidden">
-              <div className="absolute inset-0 bg-black/50" onClick={() => setShowFilters(false)} />
-              <div className="absolute right-0 top-0 bottom-0 w-80 bg-background p-6 overflow-y-auto">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-lg font-semibold">Filtres</h2>
-                  <Button variant="ghost" size="icon" onClick={() => setShowFilters(false)}>
-                    <X className="h-5 w-5" />
-                  </Button>
-                </div>
-                <SearchFilters />
-              </div>
-            </div>
-          )}
-
-          {/* Zone de résultats */}
-          <div className="lg:col-span-3 space-y-4">
-            {/* Barre d'outils */}
-            <Card className="p-4">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div className="flex items-center gap-4">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowFilters(true)}
-                    className="lg:hidden"
-                  >
-                    <SlidersHorizontal className="h-4 w-4 mr-2" />
-                    Filtres
-                  </Button>
-                  
-                  {!loading && (
-                    <p className="text-sm text-muted-foreground">
-                      <span className="font-semibold text-foreground">{pagination.total || products.length}</span> produit{(pagination.total || products.length) > 1 ? 's' : ''}
-                    </p>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground hidden sm:inline">Vue:</span>
-                  <div className="flex border rounded-lg">
-                    <Button
-                      variant={viewMode === 'grid' ? 'default' : 'ghost'}
-                      size="sm"
-                      onClick={() => setViewMode('grid')}
-                      className="rounded-r-none"
-                    >
-                      <Grid3x3 className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant={viewMode === 'list' ? 'default' : 'ghost'}
-                      size="sm"
-                      onClick={() => setViewMode('list')}
-                      className="rounded-l-none"
-                    >
-                      <List className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </Card>
-
-            {/* Résultats */}
+          {/* Results */}
+          <div className="flex-1">
             {loading ? (
-              <div className="flex flex-col justify-center items-center h-96 space-y-4">
-                <Loader2 className="h-12 w-12 animate-spin text-primary" />
-                <p className="text-muted-foreground">Recherche en cours...</p>
+              <div className="flex flex-col items-center justify-center h-80 space-y-6">
+                <div className="relative">
+                  <div className="w-16 h-16 rounded-full border-2 border-accent/20 animate-spin border-t-accent" />
+                  <Sparkles className="w-6 h-6 text-accent absolute inset-0 m-auto animate-pulse" />
+                </div>
+                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground/30 animate-pulse">
+                  Exploration des archives...
+                </p>
               </div>
             ) : products.length === 0 ? (
-              <Card className="p-12 text-center">
-                <div className="max-w-md mx-auto space-y-4">
-                  <div className="w-20 h-20 mx-auto bg-muted rounded-full flex items-center justify-center">
-                    <Grid3x3 className="h-10 w-10 text-muted-foreground" />
-                  </div>
-                  <h3 className="text-xl font-semibold">Aucun produit trouvé</h3>
-                  <p className="text-muted-foreground">
-                    Essayez de modifier vos critères de recherche ou de réinitialiser les filtres
+              <div className="flex flex-col items-center justify-center h-80 space-y-8 border-2 border-dashed border-white/5 rounded-[3rem] bg-secondary/5">
+                <div className="text-6xl">🔍</div>
+                <div className="text-center space-y-2">
+                  <h3 className="text-2xl font-black italic tracking-tighter">Aucun résultat</h3>
+                  <p className="text-sm text-muted-foreground/40 font-bold max-w-xs">
+                    Aucune pièce ne correspond à votre recherche. Essayez d&apos;autres mots-clés.
                   </p>
                 </div>
-              </Card>
+                <Link href="/explorer">
+                  <Button className="h-12 px-8 rounded-2xl bg-accent text-white font-black text-[10px] uppercase tracking-widest gap-2 hover:bg-accent/90">
+                    Explorer le catalogue <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </Link>
+              </div>
             ) : (
-              <div className="space-y-6">
-                {/* Grille de produits */}
-                <div className={
-                  viewMode === 'grid'
-                    ? 'grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6'
-                    : 'flex flex-col gap-4'
-                }>
+              <div className="space-y-10">
+                {/* Product Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
                   {products.map((product) => (
-                    <Link key={product.id} href={`/product/${product.id}`}>
-                      <Card className={`group overflow-hidden hover:shadow-xl transition-all duration-300 h-full border-2 hover:border-primary/50 ${
-                        viewMode === 'list' ? 'flex flex-row' : ''
-                      }`}>
-                        <div className={`bg-gradient-to-br from-muted to-muted/50 overflow-hidden relative ${
-                          viewMode === 'grid' ? 'aspect-square' : 'w-48 h-48'
-                        }`}>
+                    <Link key={product.id} href={`/product/${product.id}`} className="group">
+                      <div className="relative rounded-[2rem] md:rounded-[2.5rem] overflow-hidden bg-secondary/5 border border-white/5 hover:border-accent/30 transition-all duration-500 shadow-xl hover:shadow-2xl hover:shadow-accent/10 hover:-translate-y-1">
+                        {/* Image */}
+                        <div className="relative aspect-square overflow-hidden bg-secondary/10">
                           {product.image ? (
-                            <img
+                            <Image
                               src={product.image}
                               alt={product.name}
-                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                              fill
+                              className="object-cover group-hover:scale-110 transition-transform duration-700"
+                              unoptimized
                             />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <Grid3x3 className="h-16 w-16 text-muted-foreground/30" />
-                            </div>
+                            <div className="w-full h-full flex items-center justify-center text-4xl">👕</div>
                           )}
-                          {product.stock === 0 && (
-                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                              <Badge variant="destructive" className="text-sm">Rupture de stock</Badge>
-                            </div>
-                          )}
-                        </div>
-                        
-                        <div className={`p-5 flex flex-col ${viewMode === 'list' ? 'flex-1' : ''}`}>
-                          <div className="flex-1 space-y-2">
-                            <div className="flex items-start justify-between gap-2">
-                              <h3 className="font-semibold text-lg line-clamp-2 group-hover:text-primary transition-colors">
-                                {product.name}
-                              </h3>
-                              <Badge variant="outline" className="shrink-0 text-xs">
-                                {product.category}
-                              </Badge>
-                            </div>
-                            
-                            <p className="text-sm text-muted-foreground line-clamp-2">
-                              {product.description}
-                            </p>
-                          </div>
+                          {/* Overlay */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                           
-                          <div className="flex items-center justify-between pt-4 mt-auto border-t">
-                            <div>
-                              <span className="text-2xl font-bold text-primary">
-                                {formatPriceNumber(product.price)} GNF
+                          {product.stock === 0 && (
+                            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
+                              <span className="text-[9px] font-black uppercase tracking-widest text-white/70 border border-white/20 px-4 py-2 rounded-full">
+                                Épuisé
                               </span>
                             </div>
-                            {product.stock > 0 && (
-                              <Badge variant="secondary" className="bg-green-500/10 text-green-700 dark:text-green-400">
-                                En stock
-                              </Badge>
+                          )}
+
+                          {/* Category badge */}
+                          <div className="absolute top-4 left-4">
+                            <span className="text-[8px] font-black uppercase tracking-widest bg-black/40 backdrop-blur-md text-white/70 px-3 py-1.5 rounded-full border border-white/10">
+                              {product.category}
+                            </span>
+                          </div>
+
+                          {/* Arrow on hover */}
+                          <div className="absolute bottom-4 right-4 w-10 h-10 bg-accent rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-500 shadow-lg shadow-accent/40">
+                            <ArrowRight className="w-5 h-5 text-white" />
+                          </div>
+                        </div>
+
+                        {/* Info */}
+                        <div className="p-4 md:p-5 space-y-2">
+                          <h3 className="font-black italic tracking-tighter leading-tight text-sm md:text-base uppercase line-clamp-2 group-hover:text-accent transition-colors">
+                            {product.name}
+                          </h3>
+                          <div className="flex items-center justify-between">
+                            <span className="text-base md:text-xl font-black tracking-tighter">
+                              {formatPriceNumber(product.price)}
+                              <span className="text-[9px] md:text-[10px] text-muted-foreground/40 font-bold ml-1">GNF</span>
+                            </span>
+                            {product.stock > 0 && product.stock < 5 && (
+                              <span className="text-[8px] font-black uppercase text-amber-500 animate-pulse">
+                                {product.stock} restant{product.stock > 1 ? 's' : ''}
+                              </span>
                             )}
                           </div>
                         </div>
-                      </Card>
+                      </div>
                     </Link>
                   ))}
                 </div>
 
-                {/* Pagination améliorée */}
+                {/* Pagination */}
                 {pagination.pages > 1 && (
-                  <Card className="p-6">
-                    <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-                      <Button
-                        variant="outline"
-                        onClick={() => setPage(p => Math.max(1, p - 1))}
-                        disabled={page === 1}
-                        className="w-full sm:w-auto"
-                      >
-                        ← Précédent
-                      </Button>
-                      
-                      <div className="flex items-center gap-2 flex-wrap justify-center">
-                        {Array.from({ length: Math.min(pagination.pages, 7) }, (_, i) => {
-                          let pageNum;
-                          if (pagination.pages <= 7) {
-                            pageNum = i + 1;
-                          } else if (page <= 4) {
-                            pageNum = i + 1;
-                          } else if (page >= pagination.pages - 3) {
-                            pageNum = pagination.pages - 6 + i;
-                          } else {
-                            pageNum = page - 3 + i;
-                          }
-                          
-                          return (
-                            <Button
-                              key={pageNum}
-                              variant={page === pageNum ? "default" : "outline"}
-                              onClick={() => setPage(pageNum)}
-                              className="w-10 h-10"
-                            >
-                              {pageNum}
-                            </Button>
-                          );
-                        })}
-                      </div>
-                      
-                      <Button
-                        variant="outline"
-                        onClick={() => setPage(p => Math.min(pagination.pages, p + 1))}
-                        disabled={!pagination.hasMore}
-                        className="w-full sm:w-auto"
-                      >
-                        Suivant →
-                      </Button>
+                  <div className="flex items-center justify-center gap-3 mt-12 bg-secondary/5 border border-white/5 p-4 rounded-full w-fit mx-auto shadow-2xl">
+                    <Button
+                      variant="ghost"
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      disabled={page === 1}
+                      className="rounded-full h-11 px-6 font-black uppercase text-[10px] tracking-widest disabled:opacity-20"
+                    >
+                      ← Préc.
+                    </Button>
+
+                    <div className="flex items-center gap-2">
+                      {Array.from({ length: Math.min(pagination.pages, 5) }, (_, i) => {
+                        let pageNum = i + 1;
+                        if (pagination.pages > 5 && page > 3) pageNum = page - 2 + i;
+                        if (pageNum > pagination.pages) return null;
+                        return (
+                          <Button
+                            key={pageNum}
+                            onClick={() => setPage(pageNum)}
+                            className={cn(
+                              'w-10 h-10 rounded-full font-black text-xs transition-all duration-300',
+                              page === pageNum
+                                ? 'bg-accent text-white shadow-xl shadow-accent/30 scale-110'
+                                : 'bg-transparent text-muted-foreground hover:bg-white/5'
+                            )}
+                          >
+                            {pageNum}
+                          </Button>
+                        );
+                      })}
                     </div>
-                  </Card>
+
+                    <Button
+                      variant="ghost"
+                      onClick={() => setPage((p) => Math.min(pagination.pages, p + 1))}
+                      disabled={!pagination.hasMore}
+                      className="rounded-full h-11 px-6 font-black uppercase text-[10px] tracking-widest disabled:opacity-20"
+                    >
+                      Suiv. →
+                    </Button>
+                  </div>
                 )}
               </div>
             )}
           </div>
         </div>
-      </main>
+      </div>
 
       <BottomNav />
     </div>
@@ -342,7 +332,13 @@ function SearchContent() {
 
 function SearchPage() {
   return (
-    <Suspense fallback={<div>Chargement...</div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-accent" />
+        </div>
+      }
+    >
       <SearchContent />
     </Suspense>
   );

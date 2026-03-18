@@ -912,3 +912,71 @@ export const sendAdminLoginNotification = async (
   }
 };
 
+// Template pour la suppression de compte
+function getAccountDeletedTemplate(userData: any) {
+  const { name } = userData;
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <style>${emailStyles}</style>
+    </head>
+    <body style="margin: 0; padding: 20px; background-color: #f5f5f5; font-family: Arial, sans-serif;">
+      <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <div style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; padding: 40px 20px; text-align: center;">
+          <h1 style="margin: 0; font-size: 24px;">Compte Supprimé</h1>
+        </div>
+        <div style="padding: 30px 20px;">
+          <p style="font-size: 16px; margin-bottom: 20px;">Bonjour <strong>${name}</strong>,</p>
+          <p style="font-size: 14px; color: #666; line-height: 1.6; margin-bottom: 20px;">
+            Nous vous informons que votre compte sur <strong>${EMAIL_CONFIG.brandName}</strong> a été définitivement supprimé par un administrateur.
+          </p>
+          <p style="font-size: 14px; color: #666; line-height: 1.6; margin-bottom: 25px;">
+            Toutes vos données personnelles, ainsi que votre historique de navigation et vos préférences, ont été retirés de notre système.
+          </p>
+          <div style="background-color: #f8f9fa; border-left: 4px solid #dc3545; padding: 15px; border-radius: 4px; margin-bottom: 25px;">
+            <p style="margin: 0; font-size: 13px; color: #555;">
+              <strong>Note :</strong> Cette action est irréversible. Si vous souhaitez commander à nouveau, vous devrez créer un nouveau compte.
+            </p>
+          </div>
+          <p style="font-size: 14px; color: #666; margin-top: 30px;">
+            Cordialement,<br />
+            L'équipe ${EMAIL_CONFIG.brandName}
+          </p>
+        </div>
+        <div style="color: #999; font-size: 11px; padding: 20px; border-top: 1px solid #eee; text-align: center; background-color: #f9f9f9;">
+          <p style="margin: 5px 0;">© ${new Date().getFullYear()} ${EMAIL_CONFIG.brandName}. Tous droits réservés.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+}
+
+// Fonction pour envoyer l'email de suppression de compte
+export const sendAccountDeletedEmail = async (
+  email: string,
+  name: string
+) => {
+  try {
+    if (!resend) {
+      console.warn(`⚠️  Email service not configured. Skipping account deleted email to ${email}`);
+      return { success: true, skipped: true };
+    }
+
+    const response = await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
+      to: email,
+      subject: `Adieu : Votre compte a été supprimé - ${EMAIL_CONFIG.brandName}`,
+      html: getAccountDeletedTemplate({ name }),
+    });
+    
+    console.log(`✓ Account deleted email sent to ${email}`);
+    return response;
+  } catch (error) {
+    console.error('Error sending account deleted email:', error);
+    return { success: false, error };
+  }
+};
+

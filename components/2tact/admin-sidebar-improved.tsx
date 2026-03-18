@@ -75,7 +75,7 @@ export function AdminSidebarImproved() {
               href="/2tact/dashboard" 
               className="flex items-center gap-2 flex-1 hover:opacity-80 transition-opacity"
             >
-              <SiteLogo className="text-sm" />
+              <SiteLogo className="text-sm" linkTo="" />
             </Link>
             <button
               onClick={() => setIsOpen(false)}
@@ -97,8 +97,8 @@ export function AdminSidebarImproved() {
                   className={`
                     flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-all
                     ${isActive 
-                      ? 'bg-accent text-accent-foreground' 
-                      : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+                      ? 'bg-gradient-to-r from-accent to-accent/80 text-accent-foreground shadow-lg shadow-accent/20 translate-x-1' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-secondary/80 hover:translate-x-1'
                     }
                   `}
                 >

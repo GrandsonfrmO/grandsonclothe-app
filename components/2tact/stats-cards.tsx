@@ -47,47 +47,57 @@ export function StatsCards() {
       value: `${stats.totalRevenue.toLocaleString()} GNF`,
       icon: DollarSign,
       trend: "+12.5%",
-      color: "blue",
+      color: "#3B82F6", // Blue
+      bg: "rgba(59, 130, 246, 0.1)",
     },
     {
       title: "Commandes",
       value: stats.totalOrders.toString(),
       icon: ShoppingCart,
       trend: "+8.2%",
-      color: "green",
+      color: "#10B981", // Green
+      bg: "rgba(16, 185, 129, 0.1)",
     },
     {
       title: "Clients",
       value: stats.totalCustomers.toString(),
       icon: Users,
       trend: "+15.3%",
-      color: "purple",
+      color: "#8B5CF6", // Purple
+      bg: "rgba(139, 92, 246, 0.1)",
     },
     {
       title: "Panier moyen",
       value: `${stats.averageOrderValue.toLocaleString()} GNF`,
       icon: Activity,
       trend: "-2.1%",
-      color: "orange",
+      color: "#F59E0B", // Orange
+      bg: "rgba(245, 158, 11, 0.1)",
     },
   ]
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {items.map((stat, i) => (
-        <Card key={i} className="p-6 border-border hover:shadow-lg transition-all group overflow-hidden relative">
-          <div className={`absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 bg-${stat.color}-500/5 rounded-full blur-2xl group-hover:bg-${stat.color}-500/10 transition-colors`} />
-          <div className="flex items-center justify-between relative z-10">
-            <div>
-              <p className="text-sm text-muted-foreground font-medium">{stat.title}</p>
-              <p className="text-2xl font-bold mt-2 tracking-tight">{stat.value}</p>
-              <div className="flex items-center gap-1 mt-2">
-                <TrendingUp className={`w-3 h-3 ${stat.trend.startsWith("+") ? "text-green-500" : "text-red-500"}`} />
-                <span className={`text-xs font-semibold ${stat.trend.startsWith("+") ? "text-green-500" : "text-red-500"}`}>{stat.trend}</span>
+        <Card key={i} className="p-6 border-border/40 bg-card/40 backdrop-blur-xl hover:shadow-2xl transition-all duration-500 group overflow-hidden relative border-l-4" style={{ borderLeftColor: stat.color }}>
+          <div className="absolute top-0 right-0 w-32 h-32 blur-3xl rounded-full opacity-20 -mr-16 -mt-16 group-hover:opacity-40 transition-opacity" style={{ backgroundColor: stat.color }} />
+          
+          <div className="flex items-start justify-between relative z-10">
+            <div className="space-y-3">
+              <p className="text-xs font-black text-muted-foreground uppercase tracking-[0.2em]">{stat.title}</p>
+              <p className="text-3xl font-black tracking-tighter">{stat.value}</p>
+              
+              <div className="flex items-center gap-2">
+                <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${stat.trend.startsWith("+") ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"}`}>
+                  {stat.trend.startsWith("+") ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                  {stat.trend}
+                </div>
+                <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">vs mois dernier</span>
               </div>
             </div>
-            <div className={`w-12 h-12 bg-${stat.color}-500/10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
-              <stat.icon className={`w-6 h-6 text-${stat.color}-500`} />
+            
+            <div className="p-3 rounded-2xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 shadow-lg" style={{ backgroundColor: stat.bg, color: stat.color }}>
+              <stat.icon className="w-6 h-6" />
             </div>
           </div>
         </Card>

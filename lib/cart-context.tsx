@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, useCallback, type ReactNode } from "react"
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react"
 
 export interface CartItem {
   id: number
@@ -26,6 +26,27 @@ const CartContext = createContext<CartContextType | undefined>(undefined)
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([])
+
+  // Load from localStorage
+  useEffect(() => {
+    const savedCart = localStorage.getItem("grandson-cart")
+    if (savedCart) {
+      try {
+        setItems(JSON.parse(savedCart))
+      } catch (e) {
+        console.error("Failed to parse cart from localStorage", e)
+      }
+    }
+  }, [])
+
+  // Save to localStorage
+  useEffect(() => {
+    if (items.length > 0) {
+      localStorage.setItem("grandson-cart", JSON.stringify(items))
+    } else {
+      localStorage.removeItem("grandson-cart")
+    }
+  }, [items])
 
   const addItem = useCallback((newItem: Omit<CartItem, "quantity">) => {
     setItems((prev) => {
@@ -59,6 +80,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const clearCart = useCallback(() => {
     setItems([])
+    localStorage.removeItem("grandson-cart")
   }, [])
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0)
