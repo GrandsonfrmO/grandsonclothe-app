@@ -8,12 +8,22 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/2tact', '/admin', '/api', '/auth/login', '/auth/signup', '/checkout'],
+        disallow: [
+          '/2tact', 
+          '/admin', 
+          '/api', 
+          '/auth/login', 
+          '/auth/signup', 
+          '/checkout',
+          '/order-confirmation',
+          '/profil',
+          '/profile/settings'
+        ],
       },
       {
         userAgent: 'Googlebot',
         allow: '/',
-        crawlDelay: 0,
+        disallow: ['/api/', '/*?*'], // Bloquer les URLs avec query strings pour éviter le duplicate content
       },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,
