@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
         targetSegment: targetSegment || 'all',
         status: scheduledAt ? 'scheduled' : 'draft',
         scheduledAt: scheduledAt ? new Date(scheduledAt) : null,
-        createdBy: authResult.user.id,
+        createdBy: authResult.userId,
       })
       .returning();
 

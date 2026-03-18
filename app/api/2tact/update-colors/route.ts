@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { eq } from 'drizzle-orm'
+import { products } from '@/lib/db/schema'
 
 const colorSets = [
   [
@@ -42,16 +44,17 @@ const colorSets = [
 export async function POST() {
   try {
     // Récupérer tous les produits
-    const products = db.prepare('SELECT id, name FROM products').all()
+    const productsList = await db.select({ id: products.id, name: products.name }).from(products)
     
     let updated = 0
     const updates: any[] = []
     
-    products.forEach((product: any, index: number) => {
-      const colorSet = colorSets[index % colorSets.length]
+    for (let i = 0; i < productsList.length; i++) {
+      const product = productsList[i]
+      const colorSet = colorSets[i % colorSets.length]
       const colorsJson = JSON.stringify(colorSet)
       
-      db.prepare('UPDATE products SET colors = ? WHERE id = ?').run(colorsJson, product.id)
+      await db.update(products).set({ colors: colorsJson }).where(eq(products.id, product.id))
       
       updates.push({
         id: product.id,
@@ -60,7 +63,7 @@ export async function POST() {
       })
       
       updated++
-    })
+    }
     
     return NextResponse.json({
       success: true,
