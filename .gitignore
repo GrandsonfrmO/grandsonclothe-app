@@ -19,6 +19,10 @@ yarn-error.log*
 # env files
 .env*
 
+# credentials (security)
+ADMIN_CREDENTIALS.txt
+*_CREDENTIALS.txt
+
 # vercel
 .vercel
 
@@ -27,3 +31,9 @@ yarn-error.log*
 next-env.d.ts
 .vercel
 .env*.local
+
+# test results
+__tests__/results/
+__tests__/results.json
+__tests__/results.html
+*.test.log

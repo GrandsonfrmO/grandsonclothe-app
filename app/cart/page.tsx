@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowLeft, Minus, Plus, Trash2, ShoppingBag, Tag, Truck, ChevronRight } from "lucide-react"
+import { ArrowLeft, Minus, Plus, Trash2, ShoppingBag } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { BottomNav } from "@/components/bottom-nav"
@@ -12,18 +12,8 @@ import { formatPrice } from "@/lib/products"
 
 export default function CartPage() {
   const { items, updateQuantity, removeItem, totalPrice, totalItems } = useCart()
-  const [promoCode, setPromoCode] = useState("")
-  const [promoApplied, setPromoApplied] = useState(false)
   
-  const deliveryFee = totalPrice > 500000 ? 0 : 25000
-  const discount = promoApplied ? totalPrice * 0.1 : 0
-  const finalTotal = totalPrice + deliveryFee - discount
-
-  const handleApplyPromo = () => {
-    if (promoCode.toLowerCase() === "grandson10") {
-      setPromoApplied(true)
-    }
-  }
+  const finalTotal = totalPrice
 
   if (items.length === 0) {
     return (
@@ -60,7 +50,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-48">
+    <div className="min-h-screen bg-background pb-24">
       {/* Header */}
       <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
         <div className="flex items-center justify-between px-4 py-3">
@@ -136,88 +126,31 @@ export default function CartPage() {
         ))}
       </div>
 
-      {/* Promo Code */}
-      <div className="px-4 py-4">
-        <div className="bg-card rounded-2xl p-4 border border-border">
-          <div className="flex items-center gap-3 mb-3">
-            <Tag className="w-5 h-5 text-accent" />
-            <span className="font-semibold">Code promo</span>
-          </div>
-          {promoApplied ? (
-            <div className="flex items-center justify-between bg-accent/10 text-accent rounded-xl p-3">
-              <span className="font-medium">GRANDSON10 applique</span>
-              <span className="font-bold">-10%</span>
-            </div>
-          ) : (
-            <div className="flex gap-2">
-              <Input
-                value={promoCode}
-                onChange={(e) => setPromoCode(e.target.value)}
-                placeholder="Entrer le code"
-                className="bg-secondary border-0"
-              />
-              <Button onClick={handleApplyPromo} variant="secondary">
-                Appliquer
-              </Button>
-            </div>
-          )}
-          <p className="text-xs text-muted-foreground mt-2">Essayez: GRANDSON10</p>
-        </div>
-      </div>
 
-      {/* Delivery Info */}
-      <div className="px-4 py-2">
-        <div className="bg-card rounded-2xl p-4 border border-border">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-accent/10 rounded-full flex items-center justify-center">
-              <Truck className="w-5 h-5 text-accent" />
-            </div>
-            <div className="flex-1">
-              <p className="font-semibold">Livraison Conakry</p>
-              <p className="text-sm text-muted-foreground">
-                {deliveryFee === 0 ? 'Gratuite' : formatPrice(deliveryFee)}
-              </p>
-            </div>
-            <ChevronRight className="w-5 h-5 text-muted-foreground" />
-          </div>
-          {deliveryFee > 0 && (
-            <p className="text-xs text-muted-foreground mt-3 pt-3 border-t border-border">
-              Livraison gratuite a partir de {formatPrice(500000)}
-            </p>
-          )}
-        </div>
-      </div>
 
       {/* Bottom Summary */}
-      <div className="fixed bottom-20 left-0 right-0 bg-background/95 backdrop-blur-xl border-t border-border p-4 space-y-4">
+      <div className="sticky bottom-0 left-0 right-0 bg-background/95 backdrop-blur-xl border-t border-border p-4 space-y-4 z-40">
         {/* Price Breakdown */}
         <div className="space-y-2 text-sm">
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Sous-total</span>
-            <span>{formatPrice(totalPrice)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Livraison</span>
-            <span>{deliveryFee === 0 ? 'Gratuit' : formatPrice(deliveryFee)}</span>
-          </div>
-          {discount > 0 && (
-            <div className="flex justify-between text-accent">
-              <span>Reduction</span>
-              <span>-{formatPrice(discount)}</span>
-            </div>
-          )}
-          <div className="flex justify-between text-lg font-bold pt-2 border-t border-border">
+          <div className="flex justify-between text-lg font-bold">
             <span>Total</span>
             <span className="text-accent">{formatPrice(finalTotal)}</span>
           </div>
         </div>
 
-        {/* Checkout Button */}
-        <Link href="/checkout">
-          <Button className="w-full h-14 text-lg font-bold">
-            Commander maintenant
-          </Button>
-        </Link>
+        {/* Checkout Buttons */}
+        <div className="space-y-2">
+          <Link href="/checkout">
+            <Button className="w-full h-14 text-lg font-bold">
+              Commander avec compte
+            </Button>
+          </Link>
+          <Link href="/checkout-guest">
+            <Button variant="secondary" className="w-full h-14 text-lg font-bold border-2 border-accent">
+              Commander sans compte
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <BottomNav />

@@ -1,61 +1,108 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAllProducts, createProduct } from '@/lib/db/queries';
+import { getAllProducts, createProduct, getProductsPaginated } from '@/lib/db/queries';
 import { db } from '@/lib/db';
 import { products } from '@/lib/db/schema';
+import { requireAdmin, isNextResponse } from '@/lib/auth-middleware';
+import { createProductSchema } from '@/lib/validation';
+import { createError } from '@/lib/errors';
+import { logger } from '@/lib/logger';
 
-export const revalidate = 3600; // Cache for 1 hour
+export const revalidate = 60; // Cache for 1 minute (faster updates)
 
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '12');
+    const sort = searchParams.get('sort') || 'recent'; // recent, popular, top-rated, random
+    const category = searchParams.get('category') || undefined;
     
-    const offset = (page - 1) * limit;
-    
-    const allProducts = await getAllProducts();
-    const total = allProducts.length;
-    const productList = allProducts.slice(offset, offset + limit);
-    
-    return NextResponse.json({
-      data: productList,
-      pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit),
-        hasMore: offset + limit < total
-      }
+    // Use optimized pagination query
+    const result = await getProductsPaginated({
+      page,
+      limit,
+      sort: sort as any,
+      category,
     });
+    
+    return NextResponse.json(
+      {
+        data: result.items,
+        pagination: {
+          page: result.page,
+          limit: result.limit,
+          total: result.total,
+          pages: result.pages,
+          hasMore: result.hasMore,
+        }
+      },
+      {
+        headers: {
+          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
+        }
+      }
+    );
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 });
+    logger.error('Erreur lors de la récupération des produits', error);
+    console.error('Products GET error:', error);
+    const appError = createError('INTERNAL_ERROR');
+    return NextResponse.json(
+      { error: appError.message, code: appError.code, details: error instanceof Error ? error.message : 'Unknown error' },
+      { status: appError.statusCode }
+    );
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { name, description, price, image, category, stock } = body;
+    // Protection admin
+    const admin = await requireAdmin(request);
+    if (isNextResponse(admin)) return admin;
 
-    if (!name || !price || !category) {
+    const body = await request.json();
+
+    // Validation avec Zod
+    const validationResult = createProductSchema.safeParse(body);
+    if (!validationResult.success) {
+      const error = createError('VALIDATION_ERROR', validationResult.error.errors[0].message);
       return NextResponse.json(
-        { error: 'Missing required fields: name, price, category' },
-        { status: 400 }
+        { error: error.message, code: error.code, details: validationResult.error.errors },
+        { status: error.statusCode }
       );
     }
 
-    const newProduct = await db.insert(products).values({
+    const { name, description, price, image, category, stock, colors, sizes } = validationResult.data;
+
+    // Convertir colors et sizes en JSON string si ce ne sont pas déjà des strings
+    const colorsValue = colors 
+      ? (typeof colors === 'string' ? colors : JSON.stringify(colors))
+      : null;
+    const sizesValue = sizes
+      ? (typeof sizes === 'string' ? sizes : JSON.stringify(sizes))
+      : null;
+
+    const insertData = {
       name,
       description: description || '',
       price,
       image: image || '',
       category,
       stock: stock || 0,
-    }).returning();
+      colors: colorsValue,
+      sizes: sizesValue,
+    };
+
+    const newProduct = await db.insert(products).values(insertData).returning();
+
+    logger.info(`Produit créé par admin ${admin.userId}: ${newProduct[0].name}`);
 
     return NextResponse.json(newProduct[0], { status: 201 });
   } catch (error) {
-    console.error('Error creating product:', error);
-    return NextResponse.json({ error: 'Failed to create product' }, { status: 500 });
+    logger.error('Erreur lors de la création du produit', error);
+    const appError = createError('INTERNAL_ERROR');
+    return NextResponse.json(
+      { error: appError.message, code: appError.code },
+      { status: appError.statusCode }
+    );
   }
 }

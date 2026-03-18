@@ -5,7 +5,7 @@ async function testEmail() {
   try {
     console.log('🧪 Testing email service...\n');
 
-    const result = await sendOrderConfirmationEmail('papicamara22@gmail.com', {
+    const result = await sendOrderConfirmationEmail('admin@example.com', {
       orderId: 1,
       customerName: 'Test User',
       totalAmount: '150000',

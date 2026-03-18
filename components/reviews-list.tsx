@@ -71,7 +71,7 @@ export function ReviewsList({ productId, refreshTrigger }: ReviewsListProps) {
             <div className="flex gap-1">
               {[...Array(5)].map((_, i) => (
                 <Star
-                  key={i}
+                  key={`avg-star-${i}`}
                   className={`w-4 h-4 ${
                     i < Math.floor(averageRating)
                       ? 'fill-yellow-400 text-yellow-400'
@@ -104,7 +104,7 @@ export function ReviewsList({ productId, refreshTrigger }: ReviewsListProps) {
               <div className="flex gap-1">
                 {[...Array(5)].map((_, i) => (
                   <Star
-                    key={i}
+                    key={`review-${review.id}-star-${i}`}
                     className={`w-4 h-4 ${
                       i < review.rating
                         ? 'fill-yellow-400 text-yellow-400'

@@ -2,35 +2,57 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { users } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import { verifyToken } from '@/lib/jwt';
 
 export async function GET(request: NextRequest) {
   try {
-    const token = request.cookies.get('auth_token');
+    // Récupérer le token du cookie
+    const token = request.cookies.get('auth_token')?.value;
 
     if (!token) {
-      return NextResponse.json({ user: null }, { status: 200 });
+      return NextResponse.json(
+        { error: 'Not authenticated' },
+        { status: 401 }
+      );
     }
 
-    const tokenData = JSON.parse(token.value);
-    const result: any = await db.select().from(users).where(eq(users.id, tokenData.userId));
+    // Vérifier et décoder le token
+    const decoded = verifyToken(token);
+    if (!decoded) {
+      return NextResponse.json(
+        { error: 'Invalid token' },
+        { status: 401 }
+      );
+    }
+
+    // Récupérer l'utilisateur de la base de données
+    const result = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, decoded.userId));
+
+    if (result.length === 0) {
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 }
+      );
+    }
+
     const user = result[0];
 
-    if (!user) {
-      return NextResponse.json({ user: null }, { status: 200 });
-    }
-
-    return NextResponse.json(
-      {
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-        },
+    return NextResponse.json({
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role || 'buyer',
       },
-      { status: 200 }
-    );
+    });
   } catch (error) {
-    console.error('Auth check error:', error);
-    return NextResponse.json({ user: null }, { status: 200 });
+    console.error('Error in /api/auth/me:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }

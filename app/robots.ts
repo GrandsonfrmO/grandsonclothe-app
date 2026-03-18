@@ -8,7 +8,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/admin', '/api', '/auth/login', '/auth/signup', '/checkout'],
+        disallow: ['/2tact', '/admin', '/api', '/auth/login', '/auth/signup', '/checkout'],
       },
       {
         userAgent: 'Googlebot',

@@ -4,6 +4,8 @@ import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
+import { formatPriceNumber } from "@/lib/format-price"
+import { GifImage } from "@/components/gif-image"
 import { WishlistButton } from "@/components/wishlist-button"
 
 interface Product {
@@ -14,6 +16,7 @@ interface Product {
   image: string
   category: string
   isNew?: boolean
+  stock?: number
 }
 
 interface ProductCardProps {
@@ -23,6 +26,7 @@ interface ProductCardProps {
 
 export function ProductCard({ product, size = "default" }: ProductCardProps) {
   const [isPressed, setIsPressed] = useState(false)
+  const isOutOfStock = product.stock !== undefined && product.stock === 0
 
   const discount = product.originalPrice
     ? Math.round((1 - product.price / product.originalPrice) * 100)
@@ -30,10 +34,11 @@ export function ProductCard({ product, size = "default" }: ProductCardProps) {
 
   return (
     <Link
-      href={`/produit/${product.id}`}
+      href={isOutOfStock ? "#" : `/produit/${product.id}`}
       className={cn(
         "group block relative",
-        size === "large" ? "min-w-[200px]" : "min-w-[160px]"
+        size === "large" ? "min-w-[200px]" : "min-w-[160px]",
+        isOutOfStock && "pointer-events-none opacity-60"
       )}
       onTouchStart={() => setIsPressed(true)}
       onTouchEnd={() => setIsPressed(false)}
@@ -42,40 +47,53 @@ export function ProductCard({ product, size = "default" }: ProductCardProps) {
         className={cn(
           "relative overflow-hidden rounded-2xl bg-card transition-transform duration-200",
           size === "large" ? "aspect-[3/4]" : "aspect-square",
-          isPressed && "scale-[0.98]"
+          isPressed && !isOutOfStock && "scale-[0.98]"
         )}
       >
-        <Image
-          src={product.image || "/placeholder.svg"}
+        <GifImage
+          src={product.image}
           alt={product.name}
           fill
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
-          sizes={size === "large" ? "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" : "(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"}
-          loading="lazy"
-          quality={75}
+          className="object-cover"
         />
 
         {/* Overlay gradient */}
         <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
+        {/* Out of stock overlay */}
+        {isOutOfStock && (
+          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+            <div className="text-center">
+              <p className="text-white font-bold text-sm">Stock épuisé</p>
+            </div>
+          </div>
+        )}
+
         {/* Badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-1">
-          {product.isNew && (
+          {product.isNew && !isOutOfStock && (
             <span className="px-2 py-0.5 bg-accent text-accent-foreground text-[10px] font-bold rounded-full uppercase">
               New
             </span>
           )}
-          {discount && (
+          {discount && !isOutOfStock && (
             <span className="px-2 py-0.5 bg-destructive text-white text-[10px] font-bold rounded-full">
               -{discount}%
+            </span>
+          )}
+          {isOutOfStock && (
+            <span className="px-2 py-0.5 bg-destructive text-white text-[10px] font-bold rounded-full">
+              Épuisé
             </span>
           )}
         </div>
 
         {/* Favorite button */}
-        <div className="absolute top-3 right-3">
-          <WishlistButton productId={product.id} size="md" />
-        </div>
+        {!isOutOfStock && (
+          <div className="absolute top-3 right-3">
+            <WishlistButton productId={product.id} size="md" />
+          </div>
+        )}
       </div>
 
       {/* Product info */}
@@ -86,11 +104,11 @@ export function ProductCard({ product, size = "default" }: ProductCardProps) {
         <h4 className="font-medium text-sm line-clamp-1">{product.name}</h4>
         <div className="flex items-center gap-2">
           <span className="font-bold">
-            {product.price.toLocaleString()} GNF
+            {formatPriceNumber(product.price)} GNF
           </span>
           {product.originalPrice && (
             <span className="text-xs text-muted-foreground line-through">
-              {product.originalPrice.toLocaleString()}
+              {formatPriceNumber(product.originalPrice)} GNF
             </span>
           )}
         </div>

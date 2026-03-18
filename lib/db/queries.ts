@@ -1,6 +1,6 @@
 import { db } from './index';
 import { users, products, orders, orderItems, cart } from './schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, desc, asc } from 'drizzle-orm';
 
 // Users
 export async function createUser(email: string, name: string, password: string) {
@@ -16,16 +16,66 @@ export async function getAllProducts() {
   return db.select().from(products);
 }
 
+// Optimized: Get products with pagination and sorting at DB level
+export async function getProductsPaginated(options: {
+  page?: number;
+  limit?: number;
+  sort?: 'recent' | 'popular' | 'top-rated' | 'random';
+  category?: string;
+}) {
+  const { page = 1, limit = 12, sort = 'recent', category } = options;
+  const offset = (page - 1) * limit;
+
+  let query = db.select().from(products);
+
+  // Filter by category if provided
+  if (category) {
+    query = query.where(eq(products.category, category)) as any;
+  }
+
+  // Apply sorting at database level
+  switch (sort) {
+    case 'recent':
+      query = query.orderBy(products.createdAt) as any;
+      break;
+    case 'popular':
+      query = query.orderBy(products.stock) as any; // Lower stock = more popular
+      break;
+    case 'top-rated':
+      query = query.orderBy(products.id) as any; // Placeholder until reviews
+      break;
+    case 'random':
+      // Random sorting - keep in memory for now
+      break;
+  }
+
+  // Get total count for pagination
+  const totalResult = await db.select({ count: products.id }).from(products);
+  const total = totalResult.length;
+
+  // Apply pagination
+  const items = await query.limit(limit).offset(offset);
+
+  return {
+    items: sort === 'random' ? items.sort(() => Math.random() - 0.5) : items,
+    total,
+    page,
+    limit,
+    pages: Math.ceil(total / limit),
+    hasMore: offset + limit < total,
+  };
+}
+
 export async function getProductById(id: number) {
   return db.select().from(products).where(eq(products.id, id)).limit(1);
 }
 
-export async function createProduct(name: string, description: string, price: string, image: string, category: string, stock: number) {
+export async function createProduct(name: string, description: string, price: number, image: string, category: string, stock: number) {
   return db.insert(products).values({ name, description, price, image, category, stock }).returning();
 }
 
 // Orders
-export async function createOrder(userId: number, totalAmount: string, paymentMethod: 'cash_on_delivery' = 'cash_on_delivery', deliveryAddress?: string, phoneNumber?: string) {
+export async function createOrder(userId: number, totalAmount: number, paymentMethod: 'cash_on_delivery' = 'cash_on_delivery', deliveryAddress?: string, phoneNumber?: string) {
   return db.insert(orders).values({ userId, totalAmount, paymentMethod, deliveryAddress, phoneNumber }).returning();
 }
 
@@ -38,7 +88,7 @@ export async function getOrderById(id: number) {
 }
 
 // Order Items
-export async function addOrderItem(orderId: number, productId: number, quantity: number, price: string) {
+export async function addOrderItem(orderId: number, productId: number, quantity: number, price: number) {
   return db.insert(orderItems).values({ orderId, productId, quantity, price }).returning();
 }
 

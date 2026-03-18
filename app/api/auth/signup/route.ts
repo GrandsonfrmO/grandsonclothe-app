@@ -3,46 +3,56 @@ import { db } from '@/lib/db';
 import { users } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import * as bcrypt from 'bcryptjs';
+import { signToken } from '@/lib/jwt';
+import { signupSchema } from '@/lib/validation';
+import { createError } from '@/lib/errors';
+import { logger } from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, name, password } = await request.json();
+    const body = await request.json();
 
-    if (!email || !name || !password) {
+    // Validation avec Zod
+    const validationResult = signupSchema.safeParse(body);
+    if (!validationResult.success) {
+      const error = createError('VALIDATION_ERROR', validationResult.error.errors[0].message);
       return NextResponse.json(
-        { message: 'Email, name, and password required' },
-        { status: 400 }
+        { error: error.message, code: error.code, details: validationResult.error.errors },
+        { status: error.statusCode }
       );
     }
 
-    if (password.length < 6) {
+    const { email, name, password } = validationResult.data;
+
+    // Vérifier si l'utilisateur existe déjà
+    const existingUser = await db.select().from(users).where(eq(users.email, email));
+    if (existingUser.length > 0) {
+      const error = createError('USER_ALREADY_EXISTS');
       return NextResponse.json(
-        { message: 'Password must be at least 6 characters' },
-        { status: 400 }
+        { error: error.message, code: error.code },
+        { status: error.statusCode }
       );
     }
 
-    const existingUsers: any = await db.select().from(users).where(eq(users.email, email));
-
-    if (existingUsers.length > 0) {
-      return NextResponse.json(
-        { message: 'Email already exists' },
-        { status: 409 }
-      );
-    }
-
+    // Hasher le mot de passe
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUsers: any = await db
-      .insert(users)
-      .values({
-        email,
-        name,
-        password: hashedPassword,
-      })
-      .returning();
+    // Créer l'utilisateur
+    const result = await db.insert(users).values({
+      email,
+      name,
+      password: hashedPassword,
+      role: 'buyer', // Rôle par défaut pour les nouveaux utilisateurs
+    }).returning();
 
-    const newUser = newUsers[0];
+    const newUser = result[0];
+
+    // Créer JWT signé
+    const token = signToken({
+      userId: newUser.id,
+      role: newUser.role || 'buyer',
+      email: newUser.email,
+    });
 
     const response = NextResponse.json(
       {
@@ -50,24 +60,30 @@ export async function POST(request: NextRequest) {
           id: newUser.id,
           email: newUser.email,
           name: newUser.name,
+          role: newUser.role || 'buyer',
         },
       },
       { status: 201 }
     );
 
-    response.cookies.set('auth_token', JSON.stringify({ userId: newUser.id }), {
+    // Cookie sécurisé avec JWT
+    response.cookies.set('auth_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7,
+      sameSite: 'strict',
+      maxAge: 60 * 60 * 24 * 7, // 7 jours
+      path: '/',
     });
+
+    logger.info(`Nouvel utilisateur créé: ${email}`);
 
     return response;
   } catch (error) {
-    console.error('Signup error:', error);
+    logger.error('Erreur lors de l\'inscription', error);
+    const appError = createError('INTERNAL_ERROR');
     return NextResponse.json(
-      { message: 'Internal server error' },
-      { status: 500 }
+      { error: appError.message, code: appError.code },
+      { status: appError.statusCode }
     );
   }
 }

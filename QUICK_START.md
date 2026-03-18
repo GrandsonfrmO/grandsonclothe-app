@@ -1,134 +1,116 @@
-# 🚀 Quick Start - Authentification
+# Guide Rapide - Système de Validation de Commandes
 
-## ✅ Installation Complète
+## ⚡ Démarrage Rapide (5 minutes)
 
-Toutes les dépendances sont installées et la base de données est configurée !
+### 1. Configuration (2 min)
 
-## 🧪 Tester l'Authentification
-
-### 1. Démarrer le serveur de développement
-```bash
-pnpm run dev
+Ajouter à `.env.local`:
+```env
+RESEND_API_KEY=re_xxxxxxxxxxxxx
+RESEND_FROM_EMAIL=noreply@votredomaine.com
+NEXT_PUBLIC_API_URL=http://localhost:3000
 ```
 
-### 2. Créer un compte
-- Accédez à `http://localhost:3000/auth/signup`
-- Remplissez le formulaire :
-  - Nom : Jean Dupont
-  - Email : jean@example.com
-  - Mot de passe : password123
-- Cliquez sur "S'inscrire"
-
-### 3. Vérifier la connexion
-- Vous devriez être redirigé vers la page d'accueil
-- Le menu utilisateur devrait afficher votre nom dans le header
-
-### 4. Tester le profil
-- Cliquez sur votre nom dans le header
-- Sélectionnez "Mon profil"
-- Vous devriez voir vos informations
-
-### 5. Tester la déconnexion
-- Cliquez sur votre nom dans le header
-- Sélectionnez "Déconnexion"
-- Vous devriez être redirigé vers la page d'accueil
-- Le menu devrait afficher "Connexion" et "S'inscrire"
-
-### 6. Tester la protection des routes
-- Essayez d'accéder à `/admin` sans être connecté
-- Vous devriez être redirigé vers `/auth/login`
-
-## 📁 Structure des Fichiers
-
-```
-lib/
-├── auth-context.tsx          # Provider d'authentification
-└── db/
-    ├── index.ts              # Configuration DB
-    ├── schema.ts             # Schéma des tables
-    └── queries.ts            # Requêtes DB
-
-app/
-├── api/auth/
-│   ├── login/route.ts        # Endpoint login
-│   ├── signup/route.ts       # Endpoint signup
-│   ├── logout/route.ts       # Endpoint logout
-│   └── me/route.ts           # Endpoint vérification
-├── auth/
-│   ├── login/page.tsx        # Page login
-│   └── signup/page.tsx       # Page signup
-├── profile/page.tsx          # Page profil (protégée)
-└── orders/page.tsx           # Page commandes (protégée)
-
-components/
-├── user-menu.tsx             # Menu utilisateur
-└── protected-route.tsx       # Wrapper protection
-
-middleware.ts                  # Protection routes serveur
-```
-
-## 🔐 Fonctionnalités
-
-✅ Inscription avec validation
-✅ Connexion sécurisée
-✅ Hachage des mots de passe (bcryptjs)
-✅ Cookies httpOnly
-✅ Middleware de protection
-✅ Menu utilisateur
-✅ Déconnexion
-✅ Pages protégées
-
-## 🛠️ Commandes Utiles
+### 2. Migrations (1 min)
 
 ```bash
-# Démarrer le dev
-pnpm run dev
+# Migration 1: Notes admin
+curl -X POST http://localhost:3000/api/admin/migrate-admin-notes
 
-# Build production
-pnpm run build
+# Migration 2: Raison de refus
+curl -X POST http://localhost:3000/api/admin/migrate-rejection-reason
 
-# Démarrer production
-pnpm run start
-
-# Linter
-pnpm run lint
-
-# Pousser le schéma DB
-pnpm run db:push
-
-# Générer les migrations
-pnpm run db:generate
-
-# Ouvrir Drizzle Studio
-pnpm run db:studio
+# Ou via SQL
+psql -d votredb -c "ALTER TABLE orders ADD COLUMN IF NOT EXISTS admin_notes TEXT; ALTER TABLE orders ADD COLUMN IF NOT EXISTS rejection_reason TEXT;"
 ```
 
-## 🐛 Dépannage
+### 3. Test (2 min)
 
-### Les erreurs TypeScript persistent
-- C'est normal, ce sont des problèmes de version de drizzle-orm
-- Elles n'affectent pas le runtime
-- Elles disparaîtront après une mise à jour de drizzle-orm
+```bash
+node scripts/test-order-workflow.js
+```
 
-### La base de données ne se connecte pas
-- Vérifiez que `DATABASE_URL` est défini dans `.env.local`
-- Assurez-vous que votre base de données est accessible
+## 🎯 Utilisation
 
-### Les cookies ne sont pas définis
-- Vérifiez que vous êtes en HTTPS en production
-- En développement, les cookies httpOnly fonctionnent sur localhost
+### Pour les Clients
 
-## 📝 Notes
+1. Passer une commande via checkout
+2. Recevoir email de validation
+3. Attendre la confirmation de l'admin
+4. Recevoir email de confirmation (ou refus)
 
-- Les tokens expirent après 7 jours
-- Les mots de passe sont hashés avec 10 rounds de bcryptjs
-- Le middleware redirige automatiquement vers login si non authentifié
-- Les routes protégées : `/admin`, `/cart`, `/orders`, `/profile`
+### Pour les Admins
 
-## 🎯 Prochaines Étapes
+#### Valider une Commande
 
-1. Ajouter la vérification d'email
-2. Implémenter la réinitialisation de mot de passe
-3. Ajouter OAuth (Google, GitHub)
-4. Implémenter la 2FA
-5. Ajouter les rôles utilisateur (admin, user)
+1. Aller sur `/admin/orders`
+2. Cliquer sur "Voir détails" pour une commande en attente
+3. Ajouter des notes (optionnel)
+4. Cliquer sur "Valider et Confirmer"
+5. Client reçoit email de confirmation
+
+#### Refuser une Commande
+
+1. Aller sur `/admin/orders`
+2. Cliquer sur "Voir détails" pour une commande en attente
+3. Cliquer sur "Refuser"
+4. Entrer une raison de refus
+5. Cliquer sur "Confirmer le Refus"
+6. Client reçoit email de refus
+
+## 📧 Emails Envoyés
+
+| Moment | Destinataire | Contenu |
+|--------|-------------|---------|
+| Création | Client | Validation de commande |
+| Validation admin | Client | Confirmation de commande |
+| Refus admin | Client | Notification de refus |
+| Expédition | Client | Numéro de suivi |
+
+## 🔧 Commandes Utiles
+
+```bash
+# Tester le flux
+node scripts/test-order-workflow.js
+
+# Voir les logs
+tail -f .next/logs/app.log | grep -i email
+
+# Vérifier les migrations
+psql -d votredb -c "SELECT column_name FROM information_schema.columns WHERE table_name='orders';"
+```
+
+## ✅ Checklist
+
+- [ ] `.env.local` configuré
+- [ ] Migrations exécutées
+- [ ] Resend configuré
+- [ ] Test passé
+- [ ] Admins formés
+
+## 🆘 Problèmes Courants
+
+### Les emails ne sont pas envoyés
+→ Vérifier `RESEND_API_KEY` dans `.env.local`
+
+### Erreur: `Column admin_notes does not exist`
+→ Exécuter: `curl -X POST http://localhost:3000/api/admin/migrate-admin-notes`
+
+### Erreur: `Column rejection_reason does not exist`
+→ Exécuter: `curl -X POST http://localhost:3000/api/admin/migrate-rejection-reason`
+
+### Les notes admin ne s'affichent pas
+→ Vérifier que les migrations se sont bien exécutées
+
+## 📚 Documentation Complète
+
+- `ORDERS_WORKFLOW.md` - Flux détaillé des commandes
+- `REJECTION_FEATURE.md` - Fonctionnalité de refus
+- `SETUP_ORDERS.md` - Configuration complète
+- `IMPLEMENTATION_SUMMARY.md` - Détails techniques
+- `DATABASE_CHANGES.md` - Changements de base de données
+- `FLOW_DIAGRAM.md` - Diagrammes visuels
+
+## 🚀 Prêt à Déployer!
+
+Une fois les 3 étapes complétées, le système est prêt pour la production.

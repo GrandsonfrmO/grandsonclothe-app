@@ -4,19 +4,49 @@ import { orders, orderItems, products, users } from '@/lib/db/schema';
 
 export async function GET() {
   try {
-    // Get all orders for calculations
-    const allOrders = await db.select().from(orders);
-    const allUsers = await db.select().from(users);
-    const allOrderItems = await db.select().from(orderItems);
-    const allProducts = await db.select().from(products);
+    // Récupérer toutes les commandes
+    let allOrders: any[] = [];
+    let allUsers: any[] = [];
+    let allOrderItems: any[] = [];
+    let allProducts: any[] = [];
 
-    // Calculate totals
-    const totalRevenue = allOrders.reduce((sum, order) => sum + parseFloat(order.totalAmount), 0);
+    try {
+      allOrders = await db.select().from(orders);
+    } catch (e) {
+      console.error('Erreur lors de la récupération des commandes:', e);
+    }
+
+    try {
+      allUsers = await db.select().from(users);
+    } catch (e) {
+      console.error('Erreur lors de la récupération des utilisateurs:', e);
+    }
+
+    try {
+      allOrderItems = await db.select().from(orderItems);
+    } catch (e) {
+      console.error('Erreur lors de la récupération des items de commande:', e);
+    }
+
+    try {
+      allProducts = await db.select().from(products);
+    } catch (e) {
+      console.error('Erreur lors de la récupération des produits:', e);
+    }
+
+    // Calculer les totaux
+    const totalRevenue = allOrders.reduce((sum, order) => {
+      const amount = typeof order.totalAmount === 'string' 
+        ? parseFloat(order.totalAmount) 
+        : (order.totalAmount || 0);
+      return sum + (isNaN(amount) ? 0 : amount);
+    }, 0);
+
     const totalOrders = allOrders.length;
     const totalCustomers = allUsers.length;
     const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
 
-    // Revenue by day (last 7 days)
+    // Revenu par jour (7 derniers jours)
     const revenueByDay: Record<string, number> = {};
     const now = new Date();
     for (let i = 6; i >= 0; i--) {
@@ -28,14 +58,18 @@ export async function GET() {
 
     allOrders.forEach(order => {
       if (order.createdAt) {
-        const dateStr = new Date(order.createdAt).toISOString().split('T')[0];
+        const orderDate = order.createdAt instanceof Date ? order.createdAt : new Date(order.createdAt);
+        const dateStr = orderDate.toISOString().split('T')[0];
         if (dateStr in revenueByDay) {
-          revenueByDay[dateStr] += parseFloat(order.totalAmount);
+          const amount = typeof order.totalAmount === 'string' 
+            ? parseFloat(order.totalAmount) 
+            : (order.totalAmount || 0);
+          revenueByDay[dateStr] += isNaN(amount) ? 0 : amount;
         }
       }
     });
 
-    // Orders by status
+    // Commandes par statut
     const ordersByStatus: Record<string, number> = {
       pending: 0,
       processing: 0,
@@ -46,15 +80,18 @@ export async function GET() {
 
     allOrders.forEach(order => {
       if (order.status) {
-        ordersByStatus[order.status] = (ordersByStatus[order.status] || 0) + 1;
+        const status = String(order.status).toLowerCase();
+        if (status in ordersByStatus) {
+          ordersByStatus[status as keyof typeof ordersByStatus] = (ordersByStatus[status as keyof typeof ordersByStatus] || 0) + 1;
+        }
       }
     });
 
-    // Top products
+    // Produits les plus vendus
     const productSales: Record<number, number> = {};
     allOrderItems.forEach(item => {
       if (item.productId) {
-        productSales[item.productId] = (productSales[item.productId] || 0) + 1;
+        productSales[item.productId] = (productSales[item.productId] || 0) + (item.quantity || 1);
       }
     });
 
@@ -69,23 +106,31 @@ export async function GET() {
         };
       });
 
-    return NextResponse.json({
-      totalRevenue,
+    const response = {
+      totalRevenue: Math.round(totalRevenue * 100) / 100,
       totalOrders,
       totalCustomers,
-      averageOrderValue,
+      averageOrderValue: Math.round(averageOrderValue * 100) / 100,
       revenueByDay: Object.entries(revenueByDay).map(([date, revenue]) => ({
         date,
-        revenue,
+        revenue: Math.round(revenue * 100) / 100,
       })),
       ordersByStatus: Object.entries(ordersByStatus).map(([status, count]) => ({
         status,
         count,
       })),
       topProducts,
-    });
+    };
+    
+    return NextResponse.json(response);
   } catch (error) {
     console.error('Analytics error:', error);
-    return NextResponse.json({ error: 'Failed to fetch analytics' }, { status: 500 });
+    return NextResponse.json(
+      { 
+        error: 'Failed to fetch analytics',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      }, 
+      { status: 500 }
+    );
   }
 }

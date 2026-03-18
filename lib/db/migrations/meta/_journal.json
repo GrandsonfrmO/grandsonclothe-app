@@ -8,6 +8,20 @@
       "when": 1772929126056,
       "tag": "0000_lonely_senator_kelly",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1772950504878,
+      "tag": "0001_strange_blue_shield",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1773044040783,
+      "tag": "0002_clean_maelstrom",
+      "breakpoints": true
     }
   ]
 }

@@ -5,8 +5,10 @@ import { Analytics } from '@vercel/analytics/next'
 import { CartProvider } from '@/lib/cart-context'
 import { AuthProvider } from '@/lib/auth-context'
 import { WishlistProvider } from '@/lib/wishlist-context'
+import { ThemeProvider } from '@/lib/theme-context'
 import { SchemaScript } from '@/components/schema-script'
 import { generateOrganizationSchema, generateWebsiteSchema } from '@/lib/schema'
+import { DynamicFavicon } from '@/components/dynamic-favicon'
 import './globals.css'
 
 const spaceGrotesk = Space_Grotesk({ 
@@ -30,9 +32,9 @@ export const viewport: Viewport = {
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://grandsonclothes.com'
 
 export const metadata: Metadata = {
-  title: 'GRANDSON CLOTHES | Streetwear Guinee',
-  description: 'GRANDSON CLOTHES - Streetwear authentique depuis la Guinee, Afrique. Decouvrez notre collection urbaine unique.',
-  keywords: ['streetwear', 'Guinee', 'fashion', 'vêtements', 'urbain', 'Afrique'],
+  title: 'GRANDSON CLOTHES | Streetwear Guinée',
+  description: 'GRANDSON CLOTHES - Streetwear authentique depuis la Guinée, Afrique. Découvrez notre collection urbaine unique.',
+  keywords: ['streetwear', 'Guinée', 'fashion', 'vêtements', 'urbain', 'Afrique', 'Conakry'],
   authors: [{ name: 'GRANDSON CLOTHES' }],
   creator: 'GRANDSON CLOTHES',
   publisher: 'GRANDSON CLOTHES',
@@ -69,8 +71,8 @@ export const metadata: Metadata = {
     locale: 'fr_FR',
     url: baseUrl,
     siteName: 'GRANDSON CLOTHES',
-    title: 'GRANDSON CLOTHES | Streetwear Guinee',
-    description: 'GRANDSON CLOTHES - Streetwear authentique depuis la Guinee, Afrique. Decouvrez notre collection urbaine unique.',
+    title: 'GRANDSON CLOTHES | Streetwear Guinée',
+    description: 'GRANDSON CLOTHES - Streetwear authentique depuis la Guinée, Afrique. Découvrez notre collection urbaine unique.',
     images: [
       {
         url: `${baseUrl}/og-image.png`,
@@ -83,8 +85,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'GRANDSON CLOTHES | Streetwear Guinee',
-    description: 'GRANDSON CLOTHES - Streetwear authentique depuis la Guinee, Afrique.',
+    title: 'GRANDSON CLOTHES | Streetwear Guinée',
+    description: 'GRANDSON CLOTHES - Streetwear authentique depuis la Guinée, Afrique.',
     images: [`${baseUrl}/og-image.png`],
     creator: '@grandsonclothes',
   },
@@ -116,13 +118,16 @@ export default function RootLayout({
         <SchemaScript schema={generateWebsiteSchema()} />
       </head>
       <body className={`${spaceGrotesk.variable} ${bebasNeue.variable} font-sans antialiased`}>
-        <AuthProvider>
-          <WishlistProvider>
-            <CartProvider>
-              {children}
-            </CartProvider>
-          </WishlistProvider>
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <WishlistProvider>
+              <CartProvider>
+                <DynamicFavicon />
+                {children}
+              </CartProvider>
+            </WishlistProvider>
+          </AuthProvider>
+        </ThemeProvider>
         <Analytics />
       </body>
     </html>

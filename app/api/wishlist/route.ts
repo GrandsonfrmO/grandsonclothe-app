@@ -12,8 +12,9 @@ async function getUserId() {
   }
 
   try {
-    const parsed = JSON.parse(authToken) as { userId: number };
-    return parsed.userId;
+    const { verifyToken } = await import('@/lib/jwt');
+    const decoded = verifyToken(authToken);
+    return decoded?.userId || null;
   } catch {
     return null;
   }

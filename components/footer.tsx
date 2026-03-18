@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { SiteLogo } from "@/components/site-logo"
 
 const footerLinks = {
   boutique: [
@@ -15,9 +16,9 @@ const footerLinks = {
     { name: "Guide des tailles", href: "#" },
   ],
   contact: [
-    { name: "WhatsApp: +224 XX XX XX XX", href: "#" },
-    { name: "Email: contact@grandsonclothes.com", href: "#" },
-    { name: "Conakry, Guinee", href: "#" },
+    { name: "WhatsApp: +224 620 00 00 00", href: "https://wa.me/224620000000" },
+    { name: "Email: contact@grandsonclothes.com", href: "mailto:contact@grandsonclothes.com" },
+    { name: "Conakry, Guinée", href: "#" },
   ],
 }
 
@@ -34,13 +35,9 @@ export function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="inline-block">
-              <span className="font-[family-name:var(--font-display)] text-3xl tracking-wider text-foreground">
-                GRANDSON
-              </span>
-            </Link>
+            <SiteLogo linkTo="/" showTagline />
             <p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-              Streetwear authentique depuis la Guinee, Afrique. Style urbain. Culture africaine.
+              Streetwear authentique depuis la Guinée, Afrique. Style urbain. Culture africaine.
             </p>
             <div className="flex gap-4 mt-6">
               {socialLinks.map((link) => (
@@ -115,14 +112,17 @@ export function Footer() {
 
         <div className="border-t border-border mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">
-            © 2026 GRANDSON CLOTHES. Tous droits reserves. Made in Guinee.
+            © 2026 GRANDSON CLOTHES. Tous droits réservés. Made in Guinée.
           </p>
           <div className="flex gap-6">
             <Link href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Conditions generales
+              Conditions générales
             </Link>
             <Link href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Confidentialite
+              Confidentialité
+            </Link>
+            <Link href="/2tact" className="text-xs text-muted-foreground/50 hover:text-accent transition-colors">
+              Admin
             </Link>
           </div>
         </div>

@@ -2,54 +2,25 @@
 
 import { ChevronRight } from "lucide-react"
 import Link from "next/link"
-import { Suspense } from "react"
+import { useEffect, useState } from "react"
 import { ProductCard } from "./product-card"
-
-const products = [
-  {
-    id: 1,
-    name: "Hoodie Oversize Noir",
-    price: 450000,
-    originalPrice: null,
-    image: "/images/product-hoodie-black.jpg",
-    category: "Hoodies",
-    isNew: true,
-  },
-  {
-    id: 2,
-    name: "T-Shirt Graphic",
-    price: 180000,
-    originalPrice: 220000,
-    image: "/images/product-tshirt-graphic.jpg",
-    category: "T-Shirts",
-    isNew: false,
-  },
-  {
-    id: 3,
-    name: "Cargo Pants",
-    price: 380000,
-    originalPrice: null,
-    image: "/images/product-cargo.jpg",
-    category: "Pantalons",
-    isNew: true,
-  },
-  {
-    id: 4,
-    name: "Bomber Jacket",
-    price: 520000,
-    originalPrice: 650000,
-    image: "/images/product-bomber.jpg",
-    category: "Vestes",
-    isNew: false,
-  },
-]
 
 interface FeaturedProductsProps {
   title: string
   showAll?: boolean
+  sortBy?: 'recent' | 'popular' | 'top-rated' | 'random'
 }
 
 function ProductsGrid({ products }: { products: any[] }) {
+  if (products.length === 0) {
+    return (
+      <div className="px-4 py-8 text-center text-muted-foreground">
+        <p>Aucun produit disponible pour le moment.</p>
+        <p className="text-sm mt-2">Les nouveaux produits seront bientôt disponibles !</p>
+      </div>
+    )
+  }
+
   return (
     <div className="flex gap-4 overflow-x-auto px-4 pb-4 scrollbar-hide snap-x snap-mandatory">
       {products.map((product) => (
@@ -61,14 +32,30 @@ function ProductsGrid({ products }: { products: any[] }) {
   )
 }
 
-export function FeaturedProducts({ title, showAll = true }: FeaturedProductsProps) {
+export function FeaturedProducts({ title, showAll = true, sortBy = 'recent' }: FeaturedProductsProps) {
+  const [products, setProducts] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch(`/api/products?sort=${sortBy}&limit=8`)
+      .then(res => res.json())
+      .then(response => {
+        setProducts(response.data || [])
+        setLoading(false)
+      })
+      .catch(err => {
+        console.error('Erreur lors du chargement des produits:', err)
+        setLoading(false)
+      })
+  }, [sortBy])
+
   return (
     <section className="py-6">
       <div className="flex items-center justify-between px-4 mb-4">
         <h3 className="text-xl font-bold">{title}</h3>
         {showAll && (
           <Link
-            href="/explorer"
+            href={`/explorer?sort=${sortBy}`}
             className="flex items-center gap-1 text-sm text-accent hover:underline"
           >
             Voir tout
@@ -77,9 +64,11 @@ export function FeaturedProducts({ title, showAll = true }: FeaturedProductsProp
         )}
       </div>
 
-      <Suspense fallback={<div className="px-4 py-8 text-center text-muted-foreground">Chargement...</div>}>
+      {loading ? (
+        <div className="px-4 py-8 text-center text-muted-foreground">Chargement...</div>
+      ) : (
         <ProductsGrid products={products} />
-      </Suspense>
+      )}
     </section>
   )
 }

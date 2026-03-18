@@ -58,7 +58,7 @@ export function generateProductSchema(product: {
     offers: {
       '@type': 'Offer',
       url: `${baseUrl}/product/${product.id}`,
-      priceCurrency: 'EUR',
+      priceCurrency: 'GNF',
       price: product.price.toString(),
       availability: 'https://schema.org/InStock',
     },

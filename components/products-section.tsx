@@ -1,83 +1,17 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Heart, ShoppingBag } from "lucide-react"
 
-const products = [
-  {
-    id: 1,
-    name: "Hoodie Oversize Noir",
-    price: 85000,
-    originalPrice: null,
-    image: "/images/product-hoodie-black.jpg",
-    category: "Hoodies",
-    isNew: true,
-  },
-  {
-    id: 2,
-    name: "T-Shirt Graphic Urban",
-    price: 45000,
-    originalPrice: 55000,
-    image: "/images/product-tshirt-graphic.jpg",
-    category: "T-Shirts",
-    isNew: false,
-  },
-  {
-    id: 3,
-    name: "Cargo Pants Noir",
-    price: 75000,
-    originalPrice: null,
-    image: "/images/product-cargo.jpg",
-    category: "Pantalons",
-    isNew: true,
-  },
-  {
-    id: 4,
-    name: "Bomber Jacket Classic",
-    price: 120000,
-    originalPrice: null,
-    image: "/images/product-bomber.jpg",
-    category: "Vestes",
-    isNew: true,
-  },
-  {
-    id: 5,
-    name: "Joggers Tech Grey",
-    price: 65000,
-    originalPrice: 80000,
-    image: "/images/product-joggers.jpg",
-    category: "Pantalons",
-    isNew: false,
-  },
-  {
-    id: 6,
-    name: "Hoodie Oversize Vert",
-    price: 85000,
-    originalPrice: null,
-    image: "/images/product-hoodie-green.jpg",
-    category: "Hoodies",
-    isNew: true,
-  },
-  {
-    id: 7,
-    name: "Snapback Cap Logo",
-    price: 35000,
-    originalPrice: null,
-    image: "/images/product-cap.jpg",
-    category: "Accessoires",
-    isNew: false,
-  },
-  {
-    id: 8,
-    name: "T-Shirt Essential",
-    price: 40000,
-    originalPrice: 50000,
-    image: "/images/product-tshirt-graphic.jpg",
-    category: "T-Shirts",
-    isNew: false,
-  },
-]
+interface Product {
+  id: number
+  name: string
+  price: string
+  image: string
+  category: string
+  stock: number
+}
 
 interface ProductsSectionProps {
   onAddToCart?: (productId: number) => void
@@ -85,6 +19,21 @@ interface ProductsSectionProps {
 
 export function ProductsSection({ onAddToCart }: ProductsSectionProps) {
   const [favorites, setFavorites] = useState<number[]>([])
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch('/api/products')
+      .then(res => res.json())
+      .then(data => {
+        setProducts(data.slice(0, 8)) // Afficher les 8 premiers produits
+        setLoading(false)
+      })
+      .catch(err => {
+        console.error('Erreur lors du chargement des produits:', err)
+        setLoading(false)
+      })
+  }, [])
 
   const toggleFavorite = (id: number) => {
     setFavorites((prev) =>
@@ -92,10 +41,36 @@ export function ProductsSection({ onAddToCart }: ProductsSectionProps) {
     )
   }
 
-  const formatPrice = (price: number) => {
+  const formatPrice = (price: string | number) => {
+    const numPrice = typeof price === 'string' ? parseFloat(price) : price
     return new Intl.NumberFormat('fr-GN', {
       style: 'decimal',
-    }).format(price) + ' GNF'
+    }).format(numPrice) + ' GNF'
+  }
+
+  if (loading) {
+    return (
+      <section id="nouveautes" className="py-20 bg-card">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">Chargement des produits...</p>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  if (products.length === 0) {
+    return (
+      <section id="nouveautes" className="py-20 bg-card">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">Aucun produit disponible pour le moment.</p>
+            <p className="text-sm text-muted-foreground mt-2">Les nouveaux produits seront bientôt disponibles !</p>
+          </div>
+        </div>
+      </section>
+    )
   }
 
   return (
@@ -124,18 +99,19 @@ export function ProductsSection({ onAddToCart }: ProductsSectionProps) {
                   src={product.image || "/placeholder.svg"}
                   alt={product.name}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  loading="lazy"
                 />
                 
                 {/* Badges */}
                 <div className="absolute top-3 left-3 flex flex-col gap-2">
-                  {product.isNew && (
+                  {product.stock > 0 && (
                     <span className="bg-accent text-accent-foreground text-xs uppercase tracking-wider px-2 py-1 font-bold">
-                      NEW
+                      EN STOCK
                     </span>
                   )}
-                  {product.originalPrice && (
-                    <span className="bg-foreground text-background text-xs uppercase tracking-wider px-2 py-1 font-bold">
-                      PROMO
+                  {product.stock === 0 && (
+                    <span className="bg-destructive text-destructive-foreground text-xs uppercase tracking-wider px-2 py-1 font-bold">
+                      ÉPUISÉ
                     </span>
                   )}
                 </div>
@@ -174,7 +150,7 @@ export function ProductsSection({ onAddToCart }: ProductsSectionProps) {
               {/* Product info */}
               <div>
                 <p className="text-xs text-accent tracking-[0.2em] mb-1">
-                  {product.category.toUpperCase()}
+                  {product.category?.toUpperCase() || 'PRODUIT'}
                 </p>
                 <h3 className="font-medium text-foreground mb-2 line-clamp-1">
                   {product.name}
@@ -183,11 +159,6 @@ export function ProductsSection({ onAddToCart }: ProductsSectionProps) {
                   <span className="font-bold text-foreground">
                     {formatPrice(product.price)}
                   </span>
-                  {product.originalPrice && (
-                    <span className="text-sm text-muted-foreground line-through">
-                      {formatPrice(product.originalPrice)}
-                    </span>
-                  )}
                 </div>
               </div>
             </div>
