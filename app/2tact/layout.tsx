@@ -1,7 +1,7 @@
 "use client"
 
 import { AdminSidebar } from "@/components/2tact/admin-sidebar"
-import { AdminGuard } from "@/components/admin-guard"
+import { AdminGuard } from "@/components/2tact-guard"
 import { Toaster } from "@/components/ui/sonner"
 
 export default function AdminLayout({
