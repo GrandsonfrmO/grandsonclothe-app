@@ -44,7 +44,7 @@ export default function HeroImagesPage() {
 
   const fetchImages = async () => {
     try {
-      const response = await fetch('/api/admin/hero-images')
+      const response = await fetch('/api/2tact/hero-images')
       if (response.ok) {
         const data = await response.json()
         setImages(data)
@@ -86,8 +86,8 @@ export default function HeroImagesPage() {
 
     try {
       const url = editingImage
-        ? `/api/admin/hero-images/${editingImage.id}`
-        : '/api/admin/hero-images'
+        ? `/api/2tact/hero-images/${editingImage.id}`
+        : '/api/2tact/hero-images'
 
       const response = await fetch(url, {
         method: editingImage ? 'PUT' : 'POST',
@@ -123,7 +123,7 @@ export default function HeroImagesPage() {
     if (!confirm('Supprimer cette image ?')) return
 
     try {
-      const response = await fetch(`/api/admin/hero-images/${id}`, {
+      const response = await fetch(`/api/2tact/hero-images/${id}`, {
         method: 'DELETE',
       })
 

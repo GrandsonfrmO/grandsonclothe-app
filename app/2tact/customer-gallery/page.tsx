@@ -45,7 +45,7 @@ export default function CustomerGalleryPage() {
 
   const fetchImages = async () => {
     try {
-      const response = await fetch('/api/admin/customer-gallery')
+      const response = await fetch('/api/2tact/customer-gallery')
       if (response.ok) {
         const data = await response.json()
         setImages(data)
@@ -97,8 +97,8 @@ export default function CustomerGalleryPage() {
 
     try {
       const url = editingImage
-        ? `/api/admin/customer-gallery/${editingImage.id}`
-        : '/api/admin/customer-gallery'
+        ? `/api/2tact/customer-gallery/${editingImage.id}`
+        : '/api/2tact/customer-gallery'
 
       const response = await fetch(url, {
         method: editingImage ? 'PUT' : 'POST',
@@ -134,7 +134,7 @@ export default function CustomerGalleryPage() {
     if (!confirm('Supprimer cette photo ?')) return
 
     try {
-      const response = await fetch(`/api/admin/customer-gallery/${id}`, {
+      const response = await fetch(`/api/2tact/customer-gallery/${id}`, {
         method: 'DELETE',
       })
 
@@ -148,7 +148,7 @@ export default function CustomerGalleryPage() {
 
   const toggleApproval = async (id: number, currentStatus: boolean) => {
     try {
-      const response = await fetch(`/api/admin/customer-gallery/${id}`, {
+      const response = await fetch(`/api/2tact/customer-gallery/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isApproved: !currentStatus }),

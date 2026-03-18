@@ -5,8 +5,8 @@ import { Palette, Save, RotateCcw, Loader2, Palette as PaletteIcon } from 'lucid
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { CustomColorEditor } from '@/components/admin/custom-color-editor';
-import { ColorPalette } from '@/components/admin/color-palette';
+import { CustomColorEditor } from '@/components/2tact/custom-color-editor';
+import { ColorPalette } from '@/components/2tact/color-palette';
 import { useTheme } from '@/lib/theme-context';
 
 interface ThemeColors {

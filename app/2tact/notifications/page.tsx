@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Bell, Trash2, Check, ArrowLeft, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { PageHeader } from '@/components/admin/page-header';
+import { PageHeader } from '@/components/2tact/page-header';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useEffect, useState } from 'react';

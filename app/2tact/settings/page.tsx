@@ -5,8 +5,8 @@ import { Store, Bell, CreditCard, Truck, Globe, Shield, Save, Upload, Palette } 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
-import { PageHeader } from "@/components/admin/page-header"
-import { ThemeManager } from "@/components/admin/theme-manager"
+import { PageHeader } from "@/components/2tact/page-header"
+import { ThemeManager } from "@/components/2tact/theme-manager"
 
 const settingsSections = [
   { id: "store", label: "Boutique", icon: Store },

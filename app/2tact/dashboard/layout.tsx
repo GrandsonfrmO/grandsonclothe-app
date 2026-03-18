@@ -1,4 +1,4 @@
-import AdminLayout from "@/app/admin/layout"
+import AdminLayout from "@/app/2tact/layout"
 
 export default function DashboardLayout({
   children,

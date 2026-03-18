@@ -131,15 +131,12 @@ export default function CheckoutPage() {
   }
 
   const handleSubmitOrder = async () => {
-    console.log('🛒 Starting order submission...')
     
     if (!formData.fullName || !formData.phoneNumber || !formData.deliveryAddress) {
-      console.error('❌ Missing form data:', formData)
       alert('Veuillez remplir tous les champs')
       return
     }
 
-    console.log('✅ Form data valid:', formData)
     setIsSubmitting(true)
     
     try {
@@ -148,8 +145,6 @@ export default function CheckoutPage() {
       if (!phoneNumber.startsWith('+224')) {
         phoneNumber = '+224' + phoneNumber.replace(/^\+?224/, '')
       }
-
-      console.log('📞 Formatted phone:', phoneNumber)
 
       const orderData = {
         userId: user?.id,
@@ -165,22 +160,15 @@ export default function CheckoutPage() {
         })),
       }
 
-      console.log('📦 Sending order data:', orderData)
-
       const response = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderData),
       })
 
-      console.log('📥 Response status:', response.status)
-
       if (response.ok) {
         const order = await response.json()
-        console.log('✅ Order created:', order)
-        console.log('🧹 Clearing cart...')
         clearCart()
-        console.log('🔄 Redirecting to:', `/order-confirmation/${order.id}`)
         // Utiliser window.location pour forcer un rechargement complet
         window.location.href = `/order-confirmation/${order.id}`
       } else {

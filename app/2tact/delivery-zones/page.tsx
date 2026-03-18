@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
-import { PageHeader } from "@/components/admin/page-header"
+import { PageHeader } from "@/components/2tact/page-header"
 import { formatPriceNumber } from "@/lib/format-price"
 
 interface DeliveryZone {

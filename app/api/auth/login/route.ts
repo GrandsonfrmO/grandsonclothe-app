@@ -14,7 +14,11 @@ export async function POST(request: NextRequest) {
   try {
     // Rate limiting
     const identifier = getRateLimitIdentifier(request);
-    const rateLimitResult = rateLimit(identifier, { maxRequests: 10, windowMs: 15 * 60 * 1000 });
+    const isDev = process.env.NODE_ENV !== 'production';
+    const rateLimitResult = rateLimit(identifier, { 
+      maxRequests: isDev ? 100 : 10, 
+      windowMs: 15 * 60 * 1000 
+    });
     
     if (!rateLimitResult.allowed) {
       const error = createError('RATE_LIMIT_EXCEEDED');

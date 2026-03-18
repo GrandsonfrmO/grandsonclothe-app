@@ -17,7 +17,7 @@ export default function AdminSetupPage() {
 
   const checkAdminStatus = async () => {
     try {
-      const response = await fetch('/api/admin/setup');
+      const response = await fetch('/api/2tact/setup');
       const data = await response.json();
       setAdminExists(data.adminExists);
       if (data.admins && data.admins.length > 0) {
@@ -34,7 +34,7 @@ export default function AdminSetupPage() {
     setMessage('');
 
     try {
-      const response = await fetch('/api/admin/setup', {
+      const response = await fetch('/api/2tact/setup', {
         method: 'POST',
       });
 

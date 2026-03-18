@@ -11,7 +11,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { PageHeader } from "@/components/admin/page-header"
+import { PageHeader } from "@/components/2tact/page-header"
 
 interface User {
   id: number
@@ -66,7 +66,7 @@ export default function UsersPage() {
       if (roleFilter) params.append("role", roleFilter)
       if (searchTerm) params.append("search", searchTerm)
 
-      const res = await fetch(`/api/admin/users?${params.toString()}`)
+      const res = await fetch(`/api/2tact/users?${params.toString()}`)
       if (res.ok) {
         const data = await res.json()
         setUsers(Array.isArray(data) ? data : [])
@@ -81,7 +81,7 @@ export default function UsersPage() {
 
   const handleStatusChange = async (userId: number, newStatus: string, reason?: string) => {
     try {
-      const res = await fetch(`/api/admin/users/${userId}`, {
+      const res = await fetch(`/api/2tact/users/${userId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -102,7 +102,7 @@ export default function UsersPage() {
 
   const handleDelete = async (userId: number) => {
     try {
-      const res = await fetch(`/api/admin/users/${userId}`, {
+      const res = await fetch(`/api/2tact/users/${userId}`, {
         method: "DELETE",
       })
 

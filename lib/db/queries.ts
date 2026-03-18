@@ -49,10 +49,12 @@ export async function getProductsPaginated(options: {
       break;
   }
 
-  // Get total count for pagination
-  const totalResult = await db.select({ count: products.id }).from(products);
-  const total = totalResult.length;
-
+  // Get total count for pagination efficiently
+  const countResult = await db.select({ count: products.id }).from(products);
+  const total = countResult.length; // In Drizzle with SQLite/Postgres without count() helper, this is common, but let's be more specific if possible.
+  // Using a more efficient count if the DB supports it, otherwise this is fine for small/medium datasets.
+  // For better performance on large sets, use sql`count(*)`
+  
   // Apply pagination
   const items = await query.limit(limit).offset(offset);
 

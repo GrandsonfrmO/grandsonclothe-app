@@ -155,6 +155,20 @@ export default function OrderConfirmationPage() {
                 })}
               </span>
             </div>
+            
+            {order.adminNotes && (
+              <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl mt-3">
+                <p className="text-xs text-blue-500 font-bold uppercase mb-1">Note de l'équipe</p>
+                <p className="text-sm">{order.adminNotes}</p>
+              </div>
+            )}
+
+            {order.status === 'cancelled' && order.rejectionReason && (
+              <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-xl mt-3">
+                <p className="text-xs text-destructive font-bold uppercase mb-1">Raison de l'annulation</p>
+                <p className="text-sm font-medium">{order.rejectionReason}</p>
+              </div>
+            )}
           </div>
         </Card>
 
@@ -283,13 +297,21 @@ export default function OrderConfirmationPage() {
 
       {/* Bottom Actions */}
       <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-xl border-t border-border p-4 space-y-2 z-40 pb-20">
-        <Link href="/profile" className="block touch-manipulation">
-          <Button variant="secondary" className="w-full h-12 rounded-xl gap-2">
-            <User className="w-4 h-4" />
-            Voir mes commandes
-            <ChevronRight className="w-4 h-4 ml-auto" />
-          </Button>
-        </Link>
+        {order.userId ? (
+          <Link href="/profile" className="block touch-manipulation">
+            <Button variant="secondary" className="w-full h-12 rounded-xl gap-2">
+              <User className="w-4 h-4" />
+              Voir mes commandes
+              <ChevronRight className="w-4 h-4 ml-auto" />
+            </Button>
+          </Link>
+        ) : (
+          <div className="p-3 bg-secondary/30 rounded-xl mb-2">
+            <p className="text-xs text-center text-muted-foreground italic">
+              Un email de suivi a été envoyé à {order.guestEmail}
+            </p>
+          </div>
+        )}
         <Link href="/" className="block touch-manipulation">
           <Button className="w-full h-12 rounded-xl gap-2">
             <Home className="w-4 h-4" />

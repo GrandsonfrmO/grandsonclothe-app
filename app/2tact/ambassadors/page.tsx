@@ -54,7 +54,7 @@ export default function AmbassadorsPage() {
 
   const fetchAmbassadors = async () => {
     try {
-      const response = await fetch('/api/admin/ambassadors')
+      const response = await fetch('/api/2tact/ambassadors')
       if (response.ok) {
         const data = await response.json()
         setAmbassadors(data)
@@ -96,8 +96,8 @@ export default function AmbassadorsPage() {
 
     try {
       const url = editingAmbassador
-        ? `/api/admin/ambassadors/${editingAmbassador.id}`
-        : '/api/admin/ambassadors'
+        ? `/api/2tact/ambassadors/${editingAmbassador.id}`
+        : '/api/2tact/ambassadors'
 
       const response = await fetch(url, {
         method: editingAmbassador ? 'PUT' : 'POST',
@@ -137,7 +137,7 @@ export default function AmbassadorsPage() {
     if (!confirm('Supprimer cet ambassadeur ?')) return
 
     try {
-      const response = await fetch(`/api/admin/ambassadors/${id}`, {
+      const response = await fetch(`/api/2tact/ambassadors/${id}`, {
         method: 'DELETE',
       })
 

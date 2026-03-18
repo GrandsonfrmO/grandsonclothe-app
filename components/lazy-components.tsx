@@ -32,7 +32,7 @@ export const OrderStatusDistribution = dynamic(
 
 // Theme Manager - chargé uniquement sur la page settings
 export const ThemeManager = dynamic(
-  () => import('@/components/admin/theme-manager').then(mod => ({ default: mod.ThemeManager })),
+  () => import('@/components/2tact/theme-manager').then(mod => ({ default: mod.ThemeManager })),
   {
     loading: () => (
       <div className="p-6 bg-muted/10 rounded-lg animate-pulse">
@@ -49,7 +49,7 @@ export const ThemeManager = dynamic(
 
 // Color Palette - chargé uniquement sur la page settings
 export const ColorPalette = dynamic(
-  () => import('@/components/admin/color-palette').then(mod => ({ default: mod.ColorPalette })),
+  () => import('@/components/2tact/color-palette').then(mod => ({ default: mod.ColorPalette })),
   {
     loading: () => (
       <div className="p-6 bg-muted/10 rounded-lg animate-pulse">
@@ -67,7 +67,7 @@ export const ColorPalette = dynamic(
 
 // Logo Manager - chargé uniquement sur la page settings
 export const LogoManager = dynamic(
-  () => import('@/components/admin/logo-manager').then(mod => ({ default: mod.LogoManager })),
+  () => import('@/components/2tact/logo-manager').then(mod => ({ default: mod.LogoManager })),
   {
     loading: () => (
       <div className="p-6 bg-muted/10 rounded-lg animate-pulse">
@@ -80,7 +80,7 @@ export const LogoManager = dynamic(
 
 // Logo History Gallery - chargé uniquement quand l'utilisateur clique
 export const LogoHistoryGallery = dynamic(
-  () => import('@/components/admin/logo-history-gallery').then(mod => ({ default: mod.LogoHistoryGallery })),
+  () => import('@/components/2tact/logo-history-gallery').then(mod => ({ default: mod.LogoHistoryGallery })),
   {
     loading: () => (
       <div className="grid grid-cols-3 gap-4 animate-pulse">
@@ -110,7 +110,7 @@ export const ReviewForm = dynamic(
 
 // Notifications Panel - chargé uniquement quand ouvert
 export const NotificationsPanel = dynamic(
-  () => import('@/components/admin/notifications-panel').then(mod => ({ default: mod.NotificationsPanel })),
+  () => import('@/components/2tact/notifications-panel').then(mod => ({ default: mod.NotificationsPanel })),
   {
     loading: () => (
       <div className="p-4 space-y-2 animate-pulse">
@@ -124,7 +124,7 @@ export const NotificationsPanel = dynamic(
 
 // Custom Color Editor - chargé uniquement sur demande
 export const CustomColorEditor = dynamic(
-  () => import('@/components/admin/custom-color-editor').then(mod => ({ default: mod.CustomColorEditor })),
+  () => import('@/components/2tact/custom-color-editor').then(mod => ({ default: mod.CustomColorEditor })),
   {
     loading: () => (
       <div className="p-4 bg-muted/10 rounded-lg animate-pulse">

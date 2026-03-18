@@ -55,14 +55,14 @@ describe('ADMIN FUNCTIONALITY SUITE', () => {
 
   describe('User Management', () => {
     it('should list all users', async () => {
-      const res = await req(`${API_BASE}/api/admin/users`);
+      const res = await req(`${API_BASE}/api/2tact/users`);
       expect(res.status).toBe(200);
       const data = await res.json();
       expect(Array.isArray(data)).toBe(true);
     });
 
     it('should get user details', async () => {
-      const res = await req(`${API_BASE}/api/admin/users/${adminId}`);
+      const res = await req(`${API_BASE}/api/2tact/users/${adminId}`);
       expect(res.status).toBe(200);
       const data = await res.json();
       expect(data).toHaveProperty('id');
@@ -131,7 +131,7 @@ describe('ADMIN FUNCTIONALITY SUITE', () => {
 
   describe('Brand Ambassadors', () => {
     it('should list ambassadors', async () => {
-      const res = await req(`${API_BASE}/api/admin/ambassadors`);
+      const res = await req(`${API_BASE}/api/2tact/ambassadors`);
       expect(res.status).toBe(200);
       const data = await res.json();
       expect(Array.isArray(data) || data.ambassadors).toBeTruthy();
@@ -140,7 +140,7 @@ describe('ADMIN FUNCTIONALITY SUITE', () => {
 
   describe('Hero Images', () => {
     it('should list hero images', async () => {
-      const res = await req(`${API_BASE}/api/admin/hero-images`);
+      const res = await req(`${API_BASE}/api/2tact/hero-images`);
       expect(res.status).toBe(200);
       const data = await res.json();
       expect(Array.isArray(data) || data.images).toBeTruthy();
@@ -174,12 +174,12 @@ describe('ADMIN FUNCTIONALITY SUITE', () => {
 
   describe('Authorization', () => {
     it('should deny access without token', async () => {
-      const res = await fetch(`${API_BASE}/api/admin/users`);
+      const res = await fetch(`${API_BASE}/api/2tact/users`);
       expect(res.status).toBe(401);
     });
 
     it('should allow admin access', async () => {
-      const res = await req(`${API_BASE}/api/admin/users`);
+      const res = await req(`${API_BASE}/api/2tact/users`);
       expect(res.status).toBe(200);
     });
   });

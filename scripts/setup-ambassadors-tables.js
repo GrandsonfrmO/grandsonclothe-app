@@ -94,9 +94,9 @@ async function setupTables() {
 
     console.log('\n🎉 Configuration terminée avec succès!');
     console.log('\n📋 Prochaines étapes:');
-    console.log('1. Aller sur /admin/ambassadors pour ajouter des ambassadeurs');
-    console.log('2. Aller sur /admin/customer-gallery pour ajouter des photos clients');
-    console.log('3. Aller sur /admin/hero-images pour gérer les images du carrousel');
+    console.log('1. Aller sur /2tact/ambassadors pour ajouter des ambassadeurs');
+    console.log('2. Aller sur /2tact/customer-gallery pour ajouter des photos clients');
+    console.log('3. Aller sur /2tact/hero-images pour gérer les images du carrousel');
   } catch (error) {
     console.error('❌ Erreur:', error);
     process.exit(1);

@@ -72,10 +72,10 @@ export default function TestRolePage() {
           <a href="/2tact/dashboard" className="block p-3 bg-blue-500 text-white text-center rounded-lg hover:bg-blue-600">
             Tester l'accès à /2tact/dashboard
           </a>
-          <a href="/api/admin/check" className="block p-3 bg-purple-500 text-white text-center rounded-lg hover:bg-purple-600">
+          <a href="/api/2tact/check" className="block p-3 bg-purple-500 text-white text-center rounded-lg hover:bg-purple-600">
             Vérifier le compte admin dans la DB
           </a>
-          <a href="/api/admin/fix-role" className="block p-3 bg-orange-500 text-white text-center rounded-lg hover:bg-orange-600">
+          <a href="/api/2tact/fix-role" className="block p-3 bg-orange-500 text-white text-center rounded-lg hover:bg-orange-600">
             Forcer le rôle admin dans la DB
           </a>
         </div>

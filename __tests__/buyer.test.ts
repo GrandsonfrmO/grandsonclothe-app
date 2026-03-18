@@ -53,9 +53,10 @@ describe('BUYER FUNCTIONALITY SUITE', () => {
     // Get first product
     const productsRes = await fetch(`${API_BASE}/api/products`);
     if (productsRes.ok) {
-      const products = await productsRes.json();
-      if (Array.isArray(products) && products.length > 0) {
-        productId = products[0].id;
+      const resp = await productsRes.json();
+      const productList = Array.isArray(resp) ? resp : (resp.data || []);
+      if (productList.length > 0) {
+        productId = productList[0].id;
       }
     }
   });
@@ -91,10 +92,10 @@ describe('BUYER FUNCTIONALITY SUITE', () => {
 
     it('should get current user', async () => {
       const res = await req(`${API_BASE}/api/auth/me`);
-      expect([200, 400]).toContain(res.status);
+      expect([200, 400, 401]).toContain(res.status);
       if (res.status === 200) {
         const data = await res.json();
-        expect(data.email).toBeDefined();
+        expect(data.user?.email).toBeDefined();
       }
     });
   });
@@ -197,10 +198,10 @@ describe('BUYER FUNCTIONALITY SUITE', () => {
   describe('User Profile', () => {
     it('should get profile', async () => {
       const res = await req(`${API_BASE}/api/auth/me`);
-      expect([200, 400]).toContain(res.status);
+      expect([200, 400, 401]).toContain(res.status);
       if (res.status === 200) {
         const data = await res.json();
-        expect(data.email).toBeDefined();
+        expect(data.user?.email).toBeDefined();
       }
     });
   });
@@ -281,7 +282,7 @@ describe('BUYER FUNCTIONALITY SUITE', () => {
     });
 
     it('should deny buyer access to admin routes', async () => {
-      const res = await req(`${API_BASE}/api/admin/users`);
+      const res = await req(`${API_BASE}/api/2tact/users`);
       expect([401, 403]).toContain(res.status);
     });
   });

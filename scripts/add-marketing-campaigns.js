@@ -70,7 +70,7 @@ async function addMarketingCampaignsTable() {
     console.log('\n✅ Migration terminée avec succès!');
     console.log('\n📝 Prochaines étapes:');
     console.log('   1. Redémarrez votre serveur de développement');
-    console.log('   2. Accédez à /admin/marketing pour créer des campagnes');
+    console.log('   2. Accédez à /2tact/marketing pour créer des campagnes');
     console.log('   3. Configurez RESEND_API_KEY dans .env.local pour envoyer des emails');
 
   } catch (error) {

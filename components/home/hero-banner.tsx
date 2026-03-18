@@ -25,6 +25,8 @@ const slides = [
   },
 ]
 
+import Image from "next/image"
+
 export function HeroBanner() {
   const [currentSlide, setCurrentSlide] = useState(0)
 
@@ -47,9 +49,13 @@ export function HeroBanner() {
               : "opacity-0 scale-105"
           )}
         >
-          <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${slide.image})` }}
+          <Image
+            src={slide.image}
+            alt={slide.title}
+            fill
+            className="object-cover"
+            priority={index === 0}
+            sizes="95vw"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
           

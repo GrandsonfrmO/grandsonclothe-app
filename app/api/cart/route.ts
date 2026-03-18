@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCartItems, addToCart, removeFromCart, updateCartQuantity, clearCart } from '@/lib/db/queries';
+import { verifyAuth } from '@/lib/auth-middleware';
 
 export async function GET(request: NextRequest) {
   try {
-    const userId = request.nextUrl.searchParams.get('userId');
-    if (!userId) {
-      return NextResponse.json({ error: 'userId is required' }, { status: 400 });
+    const user = await verifyAuth(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const items = await getCartItems(parseInt(userId));
+    const items = await getCartItems(user.userId);
     return NextResponse.json(items);
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch cart' }, { status: 500 });
@@ -17,8 +18,14 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const user = await verifyAuth(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
-    const { userId, productId, quantity, action } = body;
+    const { productId, quantity, action = 'add' } = body;
+    const userId = user.userId;
 
     if (action === 'add') {
       const item = await addToCart(userId, productId, quantity);

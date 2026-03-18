@@ -16,6 +16,8 @@ const createZoneSchema = z.object({
 
 const updateZoneSchema = createZoneSchema.partial();
 
+export const revalidate = 3600; // Cache for 1 hour
+
 // GET all delivery zones
 export async function GET(request: NextRequest) {
   try {

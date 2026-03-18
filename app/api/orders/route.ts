@@ -326,7 +326,7 @@ export async function POST(request: NextRequest) {
           title: 'Nouvelle commande',
           message: `Nouvelle commande #${result.id} de ${customerName || 'Client'} - Montant: ${totalAmount} GNF`,
           orderId: result.id,
-          actionUrl: `/admin/orders`,
+          actionUrl: `/2tact/orders`,
         });
       }
     } catch (notificationError) {

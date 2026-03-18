@@ -8,6 +8,8 @@ import { updateProductSchema } from '@/lib/validation';
 import { createError } from '@/lib/errors';
 import { logger } from '@/lib/logger';
 
+export const revalidate = 60;
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }

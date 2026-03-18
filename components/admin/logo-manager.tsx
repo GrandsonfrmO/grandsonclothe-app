@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Upload, Save, RotateCcw, Image as ImageIcon, Loader2, History, Trash2, Download, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { ImageUpload } from "@/components/admin/image-upload"
+import { ImageUpload } from "@/components/2tact/image-upload"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { GifImage } from "@/components/gif-image"

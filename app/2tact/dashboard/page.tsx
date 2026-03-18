@@ -5,9 +5,9 @@ import { Bell, Search, Plus, TrendingUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
-import { NotificationsPanel } from "@/components/admin/notifications-panel"
-import { StatsCards } from "@/components/admin/stats-cards"
-import { KeyMetrics } from "@/components/admin/key-metrics"
+import { NotificationsPanel } from "@/components/2tact/notifications-panel"
+import { StatsCards } from "@/components/2tact/stats-cards"
+import { KeyMetrics } from "@/components/2tact/key-metrics"
 import {
   LazyRevenueTrendChart,
   LazyOrderStatusDistribution,
@@ -15,7 +15,7 @@ import {
   LazySalesChart,
   LazyTopProducts,
   LazyRecentOrders,
-} from "@/components/admin/lazy-dashboard-components"
+} from "@/components/2tact/lazy-dashboard-components"
 
 export default function AdminDashboard() {
   return (
